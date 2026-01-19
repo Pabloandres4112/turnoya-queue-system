@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # Backend de TurnoYa
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: turnoya-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=turnoya
+      - DB_PASSWORD=turnoya_password
+      - DB_NAME=turnoya_db
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+    networks:
+      - turnoya-network
+    restart: unless-stopped
+    volumes:
+      - ./backend/logs:/app/logs
+
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: turnoya-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=turnoya
+      - POSTGRES_PASSWORD=turnoya_password
+      - POSTGRES_DB=turnoya_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - turnoya-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U turnoya"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin (opcional - para administración de la BD)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: turnoya-pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@turnoya.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - turnoya-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+networks:
+  turnoya-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  pgadmin-data:
+    driver: local
