@@ -1,15 +1,6 @@
 import React, {createContext, useContext, ReactNode} from 'react';
 import {useAuth} from '../hooks';
-import {User} from '../hooks/useAuth';
-
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  loading: boolean;
-  error: string | null;
-  login: (businessName: string, whatsappNumber: string) => Promise<void>;
-  logout: () => Promise<void>;
-}
+import type {AuthContextType} from '../types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
