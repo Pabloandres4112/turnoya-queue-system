@@ -9,16 +9,16 @@ export enum NotificationType {
 
 export class SendNotificationDto {
   @IsUUID()
-  userId: string;
+  userId!: string;
 
   @IsString()
-  title: string;
+  title!: string;
 
   @IsString()
-  body: string;
+  body!: string;
 
   @IsEnum(NotificationType)
-  type: NotificationType;
+  type!: NotificationType;
 
   @IsObject()
   @IsOptional()

@@ -9,10 +9,10 @@ export enum QueueStatus {
 
 export class CreateQueueDto {
   @IsString()
-  clientName: string;
+  clientName!: string;
 
   @IsPhoneNumber()
-  phoneNumber: string;
+  phoneNumber!: string;
 
   @IsNumber()
   @IsOptional()

@@ -22,10 +22,10 @@ export class UserSettingsDto {
 
 export class CreateUserDto {
   @IsString()
-  businessName: string;
+  businessName!: string;
 
   @IsPhoneNumber()
-  whatsappNumber: string;
+  whatsappNumber!: string;
 
   @IsEmail()
   @IsOptional()

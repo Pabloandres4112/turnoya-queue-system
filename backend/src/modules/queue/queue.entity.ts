@@ -10,32 +10,32 @@ export enum QueueStatus {
 @Entity('queue')
 export class QueueEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ type: 'varchar' })
-  clientName: string;
+  clientName!: string;
 
   @Column({ type: 'varchar' })
-  phoneNumber: string;
+  phoneNumber!: string;
 
   @Column({ type: 'enum', enum: QueueStatus, default: QueueStatus.WAITING })
-  status: QueueStatus;
+  status!: QueueStatus;
 
   @Column({ type: 'int', default: 0 })
-  position: number;
+  position!: number;
 
   @Column({ type: 'int', nullable: true })
-  estimatedTime: number | null;
+  estimatedTime!: number | null;
 
   @Column({ type: 'boolean', default: false })
-  priority: boolean;
+  priority!: boolean;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @Column({ type: 'date' })
-  queueDate: Date;
+  queueDate!: Date;
 }

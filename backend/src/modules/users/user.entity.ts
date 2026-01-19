@@ -10,23 +10,23 @@ export interface UserSettings {
 @Entity('users')
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ type: 'varchar' })
-  businessName: string;
+  businessName!: string;
 
   @Column({ type: 'varchar', unique: true })
-  whatsappNumber: string;
+  whatsappNumber!: string;
 
   @Column({ type: 'varchar', nullable: true })
-  email: string | null;
+  email!: string | null;
 
   @Column({ type: 'jsonb', nullable: true })
-  settings: UserSettings | null;
+  settings!: UserSettings | null;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }
