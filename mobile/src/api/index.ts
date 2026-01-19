@@ -2,11 +2,6 @@ import api from './client';
 import type {QueueItem, User, UserSettings} from '../types';
 import type {AxiosResponse} from 'axios';
 
-interface QueueResponse {
-  data: QueueItem[];
-  total: number;
-}
-
 interface UserResponse {
   data: User;
 }
@@ -18,7 +13,7 @@ interface NotificationPayload {
 }
 
 export const queueAPI = {
-  getQueue: (): Promise<AxiosResponse<QueueResponse>> => api.get('/queue'),
+  getQueue: (): Promise<AxiosResponse<QueueItem[]>> => api.get('/queue'),
   addToQueue: (data: Partial<QueueItem>): Promise<AxiosResponse<QueueItem>> => 
     api.post('/queue', data),
   updateQueue: (id: string, data: Partial<QueueItem>): Promise<AxiosResponse<QueueItem>> => 

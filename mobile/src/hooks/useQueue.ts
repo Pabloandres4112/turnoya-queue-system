@@ -20,7 +20,7 @@ export const useQueue = (): UseQueueReturn => {
       setError(null);
       const response = await queueAPI.getQueue();
       // response.data es directamente QueueItem[]
-      setQueue(response.data || []);
+      setQueue(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar la cola';
       setError(errorMessage);
