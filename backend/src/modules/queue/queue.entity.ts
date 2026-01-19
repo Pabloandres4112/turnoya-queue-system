@@ -1,26 +1,33 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
+export enum QueueStatus {
+  WAITING = 'waiting',
+  IN_PROGRESS = 'in-progress',
+  COMPLETED = 'completed',
+  NO_SHOW = 'noShow',
+}
+
 @Entity('queue')
 export class QueueEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   clientName: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   phoneNumber: string;
 
-  @Column({ default: 'waiting' })
-  status: 'waiting' | 'in-progress' | 'completed' | 'no-show';
+  @Column({ type: 'enum', enum: QueueStatus, default: QueueStatus.WAITING })
+  status: QueueStatus;
 
-  @Column({ default: 0 })
+  @Column({ type: 'int', default: 0 })
   position: number;
 
-  @Column({ nullable: true })
-  estimatedTime: number;
+  @Column({ type: 'int', nullable: true })
+  estimatedTime: number | null;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   priority: boolean;
 
   @CreateDateColumn()

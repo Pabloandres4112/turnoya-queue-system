@@ -1,26 +1,28 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
+export interface UserSettings {
+  averageServiceTime: number;
+  automationEnabled: boolean;
+  excludedContacts: string[];
+  maxDaysAhead: number;
+}
+
 @Entity('users')
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   businessName: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', unique: true })
   whatsappNumber: string;
 
-  @Column({ nullable: true })
-  email: string;
+  @Column({ type: 'varchar', nullable: true })
+  email: string | null;
 
   @Column({ type: 'jsonb', nullable: true })
-  settings: {
-    averageServiceTime: number;
-    automationEnabled: boolean;
-    excludedContacts: string[];
-    maxDaysAhead: number;
-  };
+  settings: UserSettings | null;
 
   @CreateDateColumn()
   createdAt: Date;
