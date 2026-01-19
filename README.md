@@ -1,18 +1,18 @@
-# 🎯 TurnoYa - Sistema de Gestión de Turnos
+#  TurnoYa - Sistema de Gestión de Turnos
 
 **TurnoYa** es una solución completa para gestionar colas y turnos en pequeños negocios mediante WhatsApp. Ideal para barberías, peluquerías, técnicos, talleres y cualquier servicio que necesite organizar sus turnos diarios.
 
-## ✨ Características Principales
+##  Características Principales
 
-- 📱 **App Móvil** - React Native multiplataforma (iOS/Android)
-- 🔗 **API REST** - Backend escalable con NestJS
-- 💬 **WhatsApp Integration** - Notificaciones y automatización
-- 📊 **Dashboard** - Estadísticas en tiempo real
-- ⚙️ **Configurable** - Tiempos, automatización, plantillas
-- 🔐 **Seguro** - JWT, validación de datos
-- 🐳 **Containerizado** - Docker & Docker Compose
+-  **App Móvil** - React Native multiplataforma (iOS/Android)
+- **API REST** - Backend escalable con NestJS
+- **WhatsApp Integration** - Notificaciones y automatización
+- **Dashboard** - Estadísticas en tiempo real
+- **Configurable** - Tiempos, automatización, plantillas
+- **Seguro** - JWT, validación de datos
+-  **Containerizado** - Docker & Docker Compose
 
-## 🛠️ Stack Tecnológico
+##  Stack Tecnológico
 
 ### Backend
 ```
@@ -24,7 +24,7 @@ Node.js 18+ | NestJS | TypeScript | PostgreSQL | Docker
 React Native 0.83+ | TypeScript 5.8+ | React Navigation | Axios
 ```
 
-## 📦 Instalación
+##  Instalación
 
 ### Opción 1: Con Docker (Recomendado)
 
@@ -61,12 +61,12 @@ npm run android    # Para Android
 npm run ios        # Para iOS (solo macOS)
 ```
 
-## 🏗️ Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 turnoya-queue-system/
 │
-├── 📁 backend/                      # API REST
+├──  backend/                      # API REST
 │   ├── src/
 │   │   ├── modules/                # Módulos NestJS
 │   │   │   ├── queue/              # Gestión de colas
@@ -88,7 +88,7 @@ turnoya-queue-system/
 │   ├── package.json
 │   └── tsconfig.json
 │
-├── 📁 mobile/                       # Aplicación móvil
+├──  mobile/                       # Aplicación móvil
 │   ├── src/
 │   │   ├── api/                    # Cliente Axios
 │   │   │   ├── client.ts           # Configuración HTTP
@@ -123,7 +123,7 @@ turnoya-queue-system/
 │   ├── tsconfig.json
 │   └── README.md
 │
-├── 📁 database/                    # Scripts SQL
+├──  database/                    # Scripts SQL
 │   └── init.sql                    # Schema inicial
 │
 ├── docker-compose.yml              # Orquestación servicios
@@ -132,7 +132,7 @@ turnoya-queue-system/
 └── .gitignore
 ```
 
-## 🚀 Comandos Disponibles
+## Comandos Disponibles
 
 ### Backend
 ```bash
@@ -163,7 +163,7 @@ npm run build:android      # APK de producción
 npm run build:ios          # IPA de producción
 ```
 
-## 🔐 Configuración
+##  Configuración
 
 ### Variables de Entorno - Backend (.env)
 
@@ -205,7 +205,7 @@ REACT_APP_WHATSAPP_API_URL=https://api.whatsapp.com
 REACT_APP_ENV=development
 ```
 
-## 📊 Endpoints API Principales
+##  Endpoints API Principales
 
 ### Queue (Colas)
 ```
@@ -230,7 +230,7 @@ GET    /api/v1/users/:id/settings # Obtener configuración
 POST   /api/v1/notifications/send # Enviar notificación
 ```
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Metro bundler no inicia
 ```bash
@@ -260,13 +260,13 @@ docker-compose ps
 docker-compose restart postgres
 ```
 
-## 📱 Screenshots
+##  Screenshots
 
 - **Home Screen**: Dashboard con estadísticas del día
 - **Queue Screen**: Vista en tiempo real de la cola
 - **Settings Screen**: Configuración del negocio
 
-## 🔄 Flujo de Datos
+##  Flujo de Datos
 
 ```
 Cliente envía mensaje WhatsApp
@@ -284,7 +284,7 @@ Mostrar en tiempo real
 Notificar al cliente por WhatsApp
 ```
 
-## 🧪 Testing
+##  Testing
 
 ### Backend
 ```bash
@@ -299,20 +299,20 @@ cd mobile
 npm test              # Tests Jest
 ```
 
-## 📈 Roadmap
+##  Roadmap
 
-- ✅ Estructura base del proyecto
-- ✅ API REST básica
-- ✅ Aplicación móvil base
-- 🔄 Integración WhatsApp Business API
-- 🔄 Sistema de autenticación JWT completo
-- 🔄 Notificaciones push
-- ⏳ Panel de estadísticas avanzadas
-- ⏳ Tests completos (E2E, Unit)
-- ⏳ Documentación API (Swagger)
-- ⏳ CI/CD Pipeline (GitHub Actions)
+-  Estructura base del proyecto
+-  API REST básica
+-  Aplicación móvil base
+-  Integración WhatsApp Business API
+-  Sistema de autenticación JWT completo
+-  Notificaciones push
+-  Panel de estadísticas avanzadas
+-  Tests completos (E2E, Unit)
+- Documentación API (Swagger)
+- CI/CD Pipeline (GitHub Actions)
 
-## 🤝 Contribuir
+## Contribuir
 
 Las contribuciones son bienvenidas. Por favor:
 
@@ -322,27 +322,27 @@ Las contribuciones son bienvenidas. Por favor:
 4. Push rama (`git push origin feature/NewFeature`)
 5. Abre Pull Request
 
-## 📝 Convenciones de Código
+##  Convenciones de Código
 
 - **TypeScript**: Tipado fuerte en todo el código
 - **Commits**: `type(scope): description` (feat, fix, docs, style, refactor, test, chore)
 - **Branching**: `feature/`, `bugfix/`, `hotfix/`, `docs/`
 - **Nombres**: camelCase para variables, PascalCase para componentes/tipos
 
-## 📄 Licencia
+##  Licencia
 
 MIT License - Consulta [LICENSE](LICENSE) para detalles
 
-## 👥 Autores
+##  Autores
 
 - **Pablo Andrés** - [@Pabloandres4112](https://github.com/Pabloandres4112)
 
-## 📧 Soporte
+##  Soporte
 
 - **Issues**: [GitHub Issues](https://github.com/Pabloandres4112/turnoya-queue-system/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/Pabloandres4112/turnoya-queue-system/discussions)
 
-## 🙏 Agradecimientos
+## Agradecimientos
 
 - [React Native Community](https://reactnative.dev)
 - [NestJS](https://nestjs.com)
@@ -354,6 +354,6 @@ MIT License - Consulta [LICENSE](LICENSE) para detalles
 
 **Hecho con ❤️ para pequeños negocios**
 
-⭐ Si este proyecto te fue útil, considera darle una estrella en GitHub
+ Si este proyecto te fue útil, considera darle una estrella en GitHub
 
 </div>
