@@ -1,6 +1,7 @@
 import {Module} from '@nestjs/common';
 import {ConfigModule, ConfigService} from '@nestjs/config';
 import {TypeOrmModule} from '@nestjs/typeorm';
+import type {TypeOrmModuleOptions} from '@nestjs/typeorm';
 import {QueueController} from './modules/queue/queue.controller';
 import {QueueService} from './modules/queue/queue.service';
 import {UserController} from './modules/users/user.controller';
@@ -19,17 +20,19 @@ import {config} from './config';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: async (
+        configService: ConfigService,
+      ): Promise<TypeOrmModuleOptions> => ({
         type: 'postgres',
-        host: configService.get('database.host'),
-        port: configService.get('database.port'),
-        username: configService.get('database.username'),
-        password: configService.get('database.password'),
-        database: configService.get('database.database'),
-        entities: ['src/**/*.entity.ts'],
-        migrations: ['src/migrations/*.ts'],
-        synchronize: configService.get('app.environment') === 'development',
-        logging: configService.get('app.environment') === 'development',
+        host: configService.get<string>('database.host'),
+        port: configService.get<number>('database.port'),
+        username: configService.get<string>('database.username'),
+        password: configService.get<string>('database.password'),
+        database: configService.get<string>('database.database'),
+        entities: ['dist/**/*.entity.js'],
+        migrations: ['dist/migrations/*.js'],
+        synchronize: configService.get<string>('app.environment') === 'development',
+        logging: configService.get<string>('app.environment') === 'development',
       }),
     }),
   ],
