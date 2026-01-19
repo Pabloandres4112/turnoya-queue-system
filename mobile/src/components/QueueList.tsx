@@ -12,7 +12,7 @@ export interface QueueItem {
   id: string;
   clientName: string;
   phoneNumber: string;
-  status: 'waiting' | 'in-progress' | 'completed' | 'no-show';
+  status: 'waiting' | 'in-progress' | 'completed' | 'noShow';
   position: number;
   estimatedTime: number;
 }
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   status_completed: {
     backgroundColor: '#D4EDDA',
   },
-  status_'no-show': {
+  status_noShow: {
     backgroundColor: '#F8D7DA',
   },
   emptyContainer: {

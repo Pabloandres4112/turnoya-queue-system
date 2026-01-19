@@ -1,3 +1,3 @@
 export { Button } from './Button';
 export { Card } from './Card';
-export { QueueList } from './QueueList';
+export { QueueList, type QueueItem } from './QueueList';
