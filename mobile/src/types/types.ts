@@ -127,6 +127,7 @@ export interface UseAuthReturn {
   error: string | null;
   login: (businessName: string, whatsappNumber: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateSettings: (settings: UserSettings) => Promise<void>;
 }
 
 // ============ COMPONENT PROPS ============

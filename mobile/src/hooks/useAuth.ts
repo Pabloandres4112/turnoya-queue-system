@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import {userAPI} from '../api';
-import type {User, UseAuthReturn} from '../types';
+import type {User, UserSettings, UseAuthReturn} from '../types';
 
 /**
  * Hook personalizado para gestionar la autenticación del usuario/negocio
@@ -84,6 +84,35 @@ export const useAuth = (): UseAuthReturn => {
     }
   };
 
+  /**
+   * Actualiza la configuración del negocio
+   */
+  const updateSettings = async (settings: UserSettings): Promise<void> => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      if (!user) {
+        throw new Error('No hay usuario autenticado');
+      }
+
+      const response = await userAPI.updateUser(user.id, {settings});
+      const updatedUser = response.data;
+
+      // TODO: Actualizar AsyncStorage
+      // await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+
+      setUser(updatedUser);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar configuración';
+      setError(errorMessage);
+      console.error('Error updating settings:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     user,
     isAuthenticated,
@@ -91,5 +120,6 @@ export const useAuth = (): UseAuthReturn => {
     error,
     login,
     logout,
+    updateSettings,
   };
 };
