@@ -10,13 +10,12 @@ import {NotificationController} from './modules/notifications/notif.controller';
 import {NotificationService} from './modules/notifications/notif.service';
 import {WhatsAppService} from './services/whatsapp.service';
 import {NotificationCoreService} from './services/notification.service';
-import {config} from './config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [config],
+      envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -24,15 +23,15 @@ import {config} from './config';
         configService: ConfigService,
       ): Promise<TypeOrmModuleOptions> => ({
         type: 'postgres',
-        host: configService.get<string>('database.host'),
-        port: configService.get<number>('database.port'),
-        username: configService.get<string>('database.username'),
-        password: configService.get<string>('database.password'),
-        database: configService.get<string>('database.database'),
+        host: configService.get<string>('DB_HOST') || 'localhost',
+        port: configService.get<number>('DB_PORT') || 5432,
+        username: configService.get<string>('DB_USERNAME') || 'turnoya',
+        password: configService.get<string>('DB_PASSWORD') || 'turnoya',
+        database: configService.get<string>('DB_NAME') || 'turnoya_db',
         entities: ['dist/**/*.entity.js'],
         migrations: ['dist/migrations/*.js'],
-        synchronize: configService.get<string>('app.environment') === 'development',
-        logging: configService.get<string>('app.environment') === 'development',
+        synchronize: configService.get<string>('NODE_ENV') === 'development',
+        logging: configService.get<string>('NODE_ENV') === 'development',
       }),
     }),
   ],
