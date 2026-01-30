@@ -40,18 +40,235 @@ cp .env.example .env
 npm run start:dev
 ```
 
-## 🐳 Docker
+## 🐳 Docker - Modos de Trabajo
 
-### Construir imagen:
+Existen **3 modos de trabajo** dependiendo de tu flujo de desarrollo:
+
+---
+
+## 🚀 MODO 1: Desarrollo Local (RECOMENDADO para desarrollo activo)
+
+**Uso:** Backend en tu PC + Base de datos en Docker
+
+**Ventajas:**
+- ✅ Hot-reload **instantáneo** (cambios se ven al instante)
+- ✅ Debugging más fácil con VS Code
+- ✅ No esperar reconstrucción de Docker
+- ✅ Usa menos recursos
+
+### Paso 1: Levantar solo PostgreSQL y pgAdmin
+
+Desde la raíz del proyecto `TurnoYa/`:
 
 ```bash
-docker build -t turnoya-backend .
+docker-compose -f docker-compose.db-only.yml up -d
 ```
 
-### Ejecutar con Docker Compose:
+Esto levanta:
+- PostgreSQL en `localhost:5432`
+- pgAdmin en `http://localhost:5050`
+
+### Paso 2: Instalar dependencias (solo la primera vez)
 
 ```bash
-docker-compose up
+cd backend
+npm install
+```
+
+### Paso 3: Correr el backend localmente
+
+```bash
+npm run start:dev
+```
+
+El backend estará en `http://localhost:3000` con hot-reload automático.
+
+### ⚡ Workflow diario en modo local:
+
+```bash
+# 1. Levantar base de datos
+docker-compose -f docker-compose.db-only.yml up -d
+
+# 2. Correr backend en local
+cd backend
+npm run start:dev
+
+# 3. Hacer cambios en el código (se reflejan automáticamente)
+
+# 4. Detener al finalizar
+# Ctrl+C para detener backend
+docker-compose -f docker-compose.db-only.yml down
+```
+
+---
+
+## 🔧 MODO 2: Docker Completo - Desarrollo (hot-reload en Docker)
+
+**Uso:** Backend + Base de datos + pgAdmin en Docker
+
+**Ventajas:**
+- ✅ Entorno idéntico para todo el equipo
+- ✅ No requiere Node.js instalado en tu PC
+- ✅ Hot-reload funcional (más lento que local)
+
+### Levantar contenedores:
+
+Desde la raíz del proyecto `TurnoYa/`:
+
+```bash
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+Esto levanta:
+- Backend en `http://localhost:3000`
+- PostgreSQL en `localhost:5432`
+- pgAdmin en `http://localhost:5050`
+
+### 🔄 Actualizar después de cambios en código TypeScript:
+
+```bash
+# Restart rápido (para cambios en .ts)
+docker-compose -f docker-compose.dev.yml restart turnoya-backend-dev
+
+# Ver logs en tiempo real
+docker logs -f turnoya-backend-dev
+```
+
+### 🔄 Actualizar después de cambios en package.json:
+
+```bash
+# Rebuild completo (cuando agregas/eliminas dependencias)
+docker-compose -f docker-compose.dev.yml down
+docker-compose -f docker-compose.dev.yml up -d --build
+```
+
+### Detener contenedores:
+
+```bash
+docker-compose -f docker-compose.dev.yml down
+```
+
+---
+
+## 📦 MODO 3: Docker Producción (sin hot-reload)
+
+**Uso:** Despliegue en servidor o testing de producción
+
+**Características:**
+- ✅ Imagen optimizada y compilada
+- ✅ Sin volúmenes de código (inmutable)
+- ✅ Reinicio automático en caso de fallo
+
+### Levantar en modo producción:
+
+Desde la raíz del proyecto `TurnoYa/`:
+
+```bash
+docker-compose up -d
+```
+
+Esto levanta:
+- Backend en `http://localhost:3000` (modo producción)
+- PostgreSQL en `localhost:5432`
+- pgAdmin en `http://localhost:5050`
+
+### Actualizar después de cambios:
+
+```bash
+# Rebuild completo
+docker-compose down
+docker-compose up -d --build
+```
+
+---
+
+## 📊 Comparación de Modos
+
+| Característica | Local + DB Docker | Docker Dev | Docker Prod |
+|----------------|-------------------|------------|-------------|
+| **Hot-reload** | ⚡ Instantáneo | 🐢 Lento | ❌ No |
+| **Debugging** | ✅ Fácil | ⚠️ Complejo | ❌ No |
+| **Node.js en PC** | ✅ Requerido | ❌ No requerido | ❌ No requerido |
+| **Portabilidad** | ⚠️ Media | ✅ Alta | ✅ Alta |
+| **Uso de recursos** | 💚 Bajo | 💛 Medio | 💚 Bajo |
+| **Cuándo usar** | Desarrollo activo | Testing equipo | Producción |
+
+---
+
+## 📋 Comandos Útiles Docker
+
+### Ver estado de contenedores:
+```bash
+docker ps
+```
+
+### Ver logs:
+```bash
+# Backend
+docker logs -f turnoya-backend-dev
+
+# PostgreSQL
+docker logs -f turnoya-postgres-dev
+
+# Todos
+docker-compose -f docker-compose.dev.yml logs -f
+```
+
+### Limpiar y reiniciar todo:
+```bash
+# Detener y eliminar contenedores + volúmenes (⚠️ borra la BD)
+docker-compose -f docker-compose.dev.yml down -v
+
+# Reconstruir desde cero
+docker-compose -f docker-compose.dev.yml up -d --build
+```
+
+### Acceder a contenedor:
+```bash
+# Backend
+docker exec -it turnoya-backend-dev sh
+
+# PostgreSQL
+docker exec -it turnoya-postgres-dev psql -U turnoya -d turnoya_db
+```
+
+---
+
+## 🔐 Acceso a pgAdmin
+
+- **URL:** `http://localhost:5050`
+- **Email:** `admin@turnoya.com`
+- **Password:** `admin`
+
+### Conectar a PostgreSQL desde pgAdmin:
+- **Host:** `postgres` (nombre del servicio Docker)
+- **Puerto:** `5432`
+- **Usuario:** `turnoya`
+- **Password:** `turnoya_password`
+- **Base de datos:** `turnoya_db`
+
+---
+
+## 🎯 Resumen: ¿Qué comando usar?
+
+### Durante desarrollo diario (RECOMENDADO):
+```bash
+# Levantar solo DB
+docker-compose -f docker-compose.db-only.yml up -d
+
+# Backend local
+cd backend
+npm run start:dev
+```
+
+### Para probar todo en Docker:
+```bash
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+### Para producción/servidor:
+```bash
+docker-compose up -d
 ```
 
 ## 📚 Estructura del proyecto

@@ -6,13 +6,22 @@ import { CreateQueueDto, UpdateQueueDto } from './queue.dto';
 export class QueueController {
   constructor(private readonly queueService: QueueService) {}
 
+  // 📌 GET: Obtener cola actual CON DATOS FALSOS
   @Get()
-  async getQueue() {
+  async getQueue(): Promise<any> {
     return this.queueService.getQueue();
   }
 
+  // 📌 GET especial: Datos MOCK puros (sin lógica)
+  @Get('mock')
+  async getQueueMock(): Promise<any> {
+    return this.queueService.getQueueMock();
+  }
+
+  // 📌 POST: Agregar cliente a la cola
   @Post()
-  async addToQueue(@Body() createQueueDto: CreateQueueDto) {
+  async addToQueue(@Body() createQueueDto: CreateQueueDto): Promise<any> {
+    console.log('📥 POST /queue - Datos recibidos:', createQueueDto);
     return this.queueService.addToQueue(createQueueDto);
   }
 

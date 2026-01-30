@@ -7,6 +7,18 @@ export enum QueueStatus {
   NO_SHOW = 'noShow',
 }
 
+export interface MockQueueItem {
+  id: string;
+  clientName: string;
+  phoneNumber: string;
+  position: number;
+  status: string;
+  estimatedTime: number;
+  priority: boolean;
+  createdAt: Date;
+  queueDate: Date;
+}
+
 export class CreateQueueDto {
   @IsString()
   clientName!: string;
