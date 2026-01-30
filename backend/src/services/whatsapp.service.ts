@@ -6,8 +6,7 @@ export class WhatsAppService {
    * Servicio para integración con WhatsApp Business Cloud API
    */
 
-  // esto es de prueba 
-
+  
   async sendMessage(phoneNumber: string, message: string) {
     // TODO: Implementar integración con WhatsApp Business Cloud API
     console.log(`Enviando mensaje a ${phoneNumber}: ${message}`);
