@@ -88,37 +88,28 @@ turnoya-queue-system/
 │   ├── package.json
 │   └── tsconfig.json
 │
-├──  mobile/                       # Aplicación móvil
+├──  mobile/                       # Aplicación móvil React Native
 │   ├── src/
-│   │   ├── api/                    # Cliente Axios
-│   │   │   ├── client.ts           # Configuración HTTP
-│   │   │   └── index.ts            # Endpoints tipados
-│   │   ├── screens/                # Pantallas principales
-│   │   │   ├── HomeScreen.tsx      # Dashboard
-│   │   │   ├── QueueScreen.tsx     # Gestión de cola
-│   │   │   └── SettingsScreen.tsx  # Configuración
-│   │   ├── components/             # Componentes reutilizables
-│   │   │   ├── Button.tsx          # Botones con variantes
-│   │   │   ├── Card.tsx            # Cards
-│   │   │   └── QueueList.tsx       # Lista de turnos
-│   │   ├── hooks/                  # Custom hooks
-│   │   │   ├── useQueue.ts         # Estado de cola
-│   │   │   ├── useAuth.ts          # Autenticación
-│   │   │   └── useNotification.ts  # Notificaciones
-│   │   ├── context/                # Context API
-│   │   │   └── AuthContext.tsx     # Contexto de auth
-│   │   ├── navigation/             # React Navigation
-│   │   │   └── index.ts            # Tab Navigator
-│   │   ├── types/                  # Tipos TypeScript
-│   │   │   └── index.ts            # Interfaces
-│   │   ├── constants/              # Constantes
-│   │   │   ├── colors.ts
-│   │   │   ├── messages.ts
-│   │   │   └── defaults.ts
-│   │   ├── utils/                  # Funciones auxiliares
-│   │   │   ├── time.ts
-│   │   │   └── notifications.ts
-│   │   └── App.tsx                 # Componente raíz
+│   │   ├── api/                    # Cliente HTTP para el backend
+│   │   │   └── index.ts            # Endpoints tipados (getAll, create, delete, next)
+│   │   ├── screens/                # Pantallas principales (4 pantallas)
+│   │   │   ├── HomeScreen.tsx      # Pantalla inicial/Dashboard
+│   │   │   ├── QueueScreen.tsx     # Gestión de cola en tiempo real
+│   │   │   ├── AddClientScreen.tsx # Formulario agregar cliente
+│   │   │   └── SettingsScreen.tsx  # Configuración del negocio
+│   │   ├── navigation/             # React Navigation Stack
+│   │   │   └── AppNavigator.tsx    # Configuración de rutas y navegación
+│   │   ├── hooks/                  # Custom hooks React
+│   │   │   └── useQueue.ts         # Hook para gestión de cola
+│   │   ├── types/                  # Tipos e interfaces TypeScript
+│   │   │   └── index.ts            # QueueItem, QueueResponse, NavigationTypes
+│   │   ├── constants/              # Constantes globales
+│   │   │   └── index.ts            # API_URL, COLORS, QUEUE_STATUS, DEFAULTS
+│   │   └── utils/                  # Funciones auxiliares
+│   │       └── formatters.ts       # Formateo de teléfono, tiempo, fecha
+│   ├── android/                    # Configuración Android nativa
+│   ├── ios/                        # Configuración iOS nativa
+│   ├── App.tsx                     # Componente raíz de la aplicación
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── README.md
