@@ -1,20 +1,23 @@
 # Usa imagen oficial de Node.js
 FROM node:18-alpine
 
+# Instala pnpm globalmente
+RUN npm install -g pnpm
+
 # Establece el directorio de trabajo
 WORKDIR /app
 
 # Copia archivos de dependencias
-COPY package.json yarn.lock* package-lock.json* ./
+COPY package.json pnpm-lock.yaml ./
 
 # Instala dependencias
-RUN npm install --production=false
+RUN pnpm install --frozen-lockfile --prod=false
 
 # Copia el código fuente
 COPY . .
 
 # Compila TypeScript
-RUN npm run build
+RUN pnpm run build
 
 # Expone el puerto
 EXPOSE 3000
