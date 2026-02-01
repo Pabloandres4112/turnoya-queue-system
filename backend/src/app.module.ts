@@ -10,6 +10,7 @@ import {NotificationController} from './modules/notifications/notif.controller';
 import {NotificationService} from './modules/notifications/notif.service';
 import {WhatsAppService} from './services/whatsapp.service';
 import {NotificationCoreService} from './services/notification.service';
+import {AuthModule} from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import {NotificationCoreService} from './services/notification.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    AuthModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (

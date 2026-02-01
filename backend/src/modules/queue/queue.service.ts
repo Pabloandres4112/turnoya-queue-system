@@ -48,7 +48,7 @@ export class QueueService {
       queue: this.mockQueue,
       total: this.mockQueue.length,
       currentPosition: 1,
-      message: '✅ Datos de DEMO - Cola obtenida correctamente'
+      message: ' Datos de DEMO - Cola obtenida correctamente'
     };
   }
 
@@ -79,7 +79,7 @@ export class QueueService {
     
     return {
       success: true,
-      message: '✅ Cliente agregado a la cola',
+      message: ' Cliente agregado a la cola',
       data: newClient,
       totalInQueue: this.mockQueue.length
     };

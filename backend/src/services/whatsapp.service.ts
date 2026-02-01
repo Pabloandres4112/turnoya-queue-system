@@ -27,7 +27,7 @@ export class WhatsAppService {
   }
 
   async sendTurnReady(phoneNumber: string) {
-    const message = `¡Es tu turno! ✅\nPor favor dirígete al punto de atención.`;
+    const message = `¡Es tu turno! \nPor favor dirígete al punto de atención.`;
     return this.sendMessage(phoneNumber, message);
   }
 
