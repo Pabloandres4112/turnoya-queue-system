@@ -85,7 +85,7 @@ export class QueueService {
     };
   }
 
-  async updateQueueItem(id: string, updateQueueDto: UpdateQueueDto) {
+  async updateQueueItem(_id: string, _updateQueueDto: UpdateQueueDto) {
     // Actualiza un turno en la cola
     return {
       success: true,
@@ -93,7 +93,7 @@ export class QueueService {
     };
   }
 
-  async removeFromQueue(id: string) {
+  async removeFromQueue(_id: string) {
     // Elimina un turno de la cola
     return {
       success: true,
@@ -109,7 +109,7 @@ export class QueueService {
     };
   }
 
-  async completeQueueItem(id: string) {
+  async completeQueueItem(_id: string) {
     // Marca un turno como completado
     return {
       success: true,

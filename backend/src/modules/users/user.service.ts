@@ -14,7 +14,7 @@ export class UserService {
     };
   }
 
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(_createUserDto: CreateUserDto) {
     return {
       success: true,
       message: 'Usuario creado',
@@ -22,14 +22,14 @@ export class UserService {
     };
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+  async updateUser(_id: string, _updateUserDto: UpdateUserDto) {
     return {
       success: true,
       message: 'Usuario actualizado'
     };
   }
 
-  async getUserSettings(id: string) {
+  async getUserSettings(_id: string) {
     return {
       averageServiceTime: 30,
       automationEnabled: true,

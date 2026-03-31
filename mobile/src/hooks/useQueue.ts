@@ -31,7 +31,7 @@ export const useQueue = () => {
       try {
         await api.queue.create(data);
         await loadQueue();
-      } catch (err) {
+      } catch {
         throw new Error('Error agregando a la cola');
       }
     },
@@ -42,7 +42,7 @@ export const useQueue = () => {
     try {
       await api.queue.next();
       await loadQueue();
-    } catch (err) {
+    } catch {
       throw new Error('Error avanzando turno');
     }
   }, [loadQueue]);
