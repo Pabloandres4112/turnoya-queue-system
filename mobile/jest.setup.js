@@ -1,3 +1,4 @@
+/* eslint-env jest */
 // Mock react-native-gesture-handler
 require('react-native-gesture-handler/jestSetup');
 

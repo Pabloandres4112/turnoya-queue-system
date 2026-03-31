@@ -37,7 +37,7 @@ const AddClientScreen: React.FC = () => {
       await api.queue.create({
         clientName: clientName.trim(),
         phoneNumber: phoneNumber.trim(),
-        estimatedTime: parseInt(estimatedTime) || 30,
+        estimatedTime: parseInt(estimatedTime, 10) || 30,
         priority,
       });
 

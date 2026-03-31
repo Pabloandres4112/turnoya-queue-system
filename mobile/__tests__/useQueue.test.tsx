@@ -2,7 +2,7 @@
  * Tests for the useQueue custom hook
  */
 
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import {useQueue} from '../src/hooks/useQueue';
 import api from '../src/api';

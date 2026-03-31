@@ -6,7 +6,7 @@ export class NotificationCoreService {
    * Servicio para notificaciones push a la app móvil
    */
 
-  async sendPushNotification(userId: string, title: string, body: string, data?: any) {
+  async sendPushNotification(userId: string, _title: string, _body: string, _data?: any) {
     // TODO: Implementar integración con servicio de push notifications
     console.log(`Enviando notificación push a usuario ${userId}`);
     return {
