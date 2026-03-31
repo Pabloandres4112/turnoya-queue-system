@@ -94,7 +94,7 @@ npm test -- --watchAll=false --testPathPattern="HomeScreen"
 
 | File | What it covers |
 |------|---------------|
-| `__tests__/App.test.tsx` | Root `App` component renders without crashing |
+| `__tests__/App.test.tsx` | Root `App` component renders without crashing (pre-existing test) |
 | `__tests__/HomeScreen.test.tsx` | Title, subtitle, navigation buttons render and trigger the correct `navigate()` calls |
 | `__tests__/QueueScreen.test.tsx` | Loading indicator, client names, total count, empty state, "Siguiente Turno" button calls `api.queue.next` |
 | `__tests__/AddClientScreen.test.tsx` | Form validation (empty name / phone), successful create call, error handling |

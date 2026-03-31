@@ -36,7 +36,10 @@ export function getAllText(
 }
 
 /**
- * Find a TouchableOpacity that contains the given text label
+ * Find a TouchableOpacity that contains the given text label.
+ *
+ * Note: only searches `TouchableOpacity` components. If the codebase uses
+ * `Pressable` or `TouchableHighlight`, those are not matched by this helper.
  */
 export function findButtonByText(
   root: ReactTestRenderer.ReactTestInstance,

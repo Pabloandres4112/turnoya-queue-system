@@ -40,6 +40,6 @@ jest.mock('@react-navigation/native', () => ({
 jest.mock('@react-navigation/native-stack', () => ({
   createNativeStackNavigator: () => ({
     Navigator: ({children}) => children,
-    Screen: ({component: Component}) => <Component />,
+    Screen: 'Screen',
   }),
 }));
