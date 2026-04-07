@@ -11,7 +11,7 @@ export class NotificationCoreService {
     console.log(`Enviando notificación push a usuario ${userId}`);
     return {
       success: true,
-      notificationId: 'notif-id'
+      notificationId: 'notif-id',
     };
   }
 }

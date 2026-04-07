@@ -7,7 +7,7 @@ export class NotificationService {
     // TODO: Integrar con servicio de notificaciones push
     return {
       success: true,
-      message: 'Notificación enviada'
+      message: 'Notificación enviada',
     };
   }
 
@@ -15,7 +15,7 @@ export class NotificationService {
     // Notifica cambios en la cola a la app móvil
     return {
       success: true,
-      message: 'Actualización de cola enviada'
+      message: 'Actualización de cola enviada',
     };
   }
 }

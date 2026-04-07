@@ -7,7 +7,7 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
     const request = context.switchToHttp().getRequest();
-    
+
     return next.handle().pipe(
       tap(() => {
         const responseTime = Date.now() - now;
