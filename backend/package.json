@@ -44,6 +44,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
+    "@types/ms": "^2.1.0",
     "@types/node": "^20.3.1",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^2.0.12",
@@ -72,6 +73,11 @@
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "moduleNameMapper": {
+      "^@modules/(.*)$": "<rootDir>/modules/$1",
+      "^@services/(.*)$": "<rootDir>/services/$1",
+      "^@common/(.*)$": "<rootDir>/common/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

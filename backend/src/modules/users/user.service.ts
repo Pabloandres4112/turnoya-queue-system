@@ -10,31 +10,31 @@ export class UserService {
       id,
       businessName: '',
       whatsappNumber: '',
-      settings: {}
+      settings: {},
     };
   }
 
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(_createUserDto: CreateUserDto) {
     return {
       success: true,
       message: 'Usuario creado',
-      userId: 'new-id'
+      userId: 'new-id',
     };
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+  async updateUser(_id: string, _updateUserDto: UpdateUserDto) {
     return {
       success: true,
-      message: 'Usuario actualizado'
+      message: 'Usuario actualizado',
     };
   }
 
-  async getUserSettings(id: string) {
+  async getUserSettings(_id: string) {
     return {
       averageServiceTime: 30,
       automationEnabled: true,
       excludedContacts: [],
-      maxDaysAhead: 7
+      maxDaysAhead: 7,
     };
   }
 }

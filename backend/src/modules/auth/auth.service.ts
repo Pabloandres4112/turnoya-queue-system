@@ -1,10 +1,10 @@
-import {ConflictException, Injectable, UnauthorizedException} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {JwtService} from '@nestjs/jwt';
-import {Repository} from 'typeorm';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import {UserEntity} from '../users/user.entity';
-import {LoginDto, RegisterDto} from './auth.dto';
+import { UserEntity } from '../users/user.entity';
+import { LoginDto, RegisterDto } from './auth.dto';
 
 interface JwtPayload {
   sub: string;
@@ -24,8 +24,8 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const existing = await this.usersRepository.findOne({
       where: dto.email
-        ? [{whatsappNumber: dto.whatsappNumber}, {email: dto.email}]
-        : [{whatsappNumber: dto.whatsappNumber}],
+        ? [{ whatsappNumber: dto.whatsappNumber }, { email: dto.email }]
+        : [{ whatsappNumber: dto.whatsappNumber }],
     });
 
     if (existing) {
@@ -80,7 +80,7 @@ export class AuthService {
   }
 
   async validateUserById(userId: string) {
-    const user = await this.usersRepository.findOne({where: {id: userId}});
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new UnauthorizedException('Usuario no válido');
     }
