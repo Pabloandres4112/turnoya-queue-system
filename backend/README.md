@@ -13,31 +13,37 @@ Backend para el sistema de gestión de turnos por WhatsApp.
 ## 📋 Requisitos previos
 
 - Node.js 18+
-- npm o yarn
+- pnpm 8+ (se recomienda sobre npm/yarn)
 - PostgreSQL 14+
 - Docker (opcional)
 
 ## 🛠️ Instalación
 
 1. Clonar el repositorio
-2. Instalar dependencias:
+2. Instalar pnpm (si no lo tienes):
 
 ```bash
-npm install
+npm install -g pnpm
 ```
 
-3. Copiar el archivo de entorno:
+3. Instalar dependencias:
+
+```bash
+pnpm install
+```
+
+4. Copiar el archivo de entorno:
 
 ```bash
 cp .env.example .env
 ```
 
-4. Configurar las variables de entorno en `.env`
+5. Configurar las variables de entorno en `.env`
 
-5. Iniciar en modo desarrollo:
+6. Iniciar en modo desarrollo:
 
 ```bash
-npm run start:dev
+pnpm run start:dev
 ```
 
 ## 🐳 Docker - Modos de Trabajo
