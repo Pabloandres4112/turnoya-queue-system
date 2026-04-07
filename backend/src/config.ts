@@ -14,11 +14,11 @@ export const config = {
 
   // Configuración de base de datos
   database: {
-    host: process.env.DB_HOST || 'localhost',
+    host: process.env.DB_HOST || '192.168.100.6',
     port: parseInt(process.env.DB_PORT || '5432', 10),
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
-    database: process.env.DB_NAME || 'turnoya',
+    database: process.env.DB_NAME || 'turnoya_db',
   },
 
   // Configuración de WhatsApp Business API

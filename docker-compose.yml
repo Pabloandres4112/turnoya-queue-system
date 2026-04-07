@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Backend de TurnoYa
   backend:
@@ -11,6 +9,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - DB_SYNC=true
       - PORT=3000
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -20,7 +19,8 @@ services:
     env_file:
       - ./backend/.env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - turnoya-network
     restart: unless-stopped
@@ -43,7 +43,7 @@ services:
       - turnoya-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U turnoya"]
+      test: ["CMD-SHELL", "pg_isready -U turnoya -d turnoya_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -63,7 +63,8 @@ services:
       - turnoya-network
     restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
 networks:
   turnoya-network:
