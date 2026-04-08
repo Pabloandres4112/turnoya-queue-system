@@ -1,5 +1,8 @@
+import { UserRole } from './user-role.enum';
+
 export interface User {
   id: string;
+  role: UserRole;
   businessName: string;
   whatsappNumber: string;
   settings: Record<string, any>;

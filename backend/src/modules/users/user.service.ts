@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User, CreateUserResponse, UpdateUserResponse, UserSettings } from './user.types';
 import { UserEntity } from './user.entity';
+import { UserRole } from './user-role.enum';
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,7 @@ export class UserService {
 
     return users.map((user) => ({
       id: user.id,
+      role: user.role,
       businessName: user.businessName,
       whatsappNumber: user.whatsappNumber,
       settings: user.settings ?? {},
@@ -34,6 +36,7 @@ export class UserService {
 
     return {
       id: user.id,
+      role: user.role,
       businessName: user.businessName,
       whatsappNumber: user.whatsappNumber,
       settings: user.settings ?? {},
@@ -42,6 +45,7 @@ export class UserService {
 
   async createUser(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
     const user = this.userRepository.create({
+      role: UserRole.BUSINESS_OWNER,
       businessName: createUserDto.businessName,
       whatsappNumber: createUserDto.whatsappNumber,
       email: createUserDto.email ?? null,

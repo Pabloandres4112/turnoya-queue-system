@@ -3,9 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from './auth.service';
+import { UserRole } from '../users/user-role.enum';
 
 interface JwtPayload {
   sub: string;
+  role: UserRole;
   whatsappNumber: string;
   email: string | null;
   businessName: string;

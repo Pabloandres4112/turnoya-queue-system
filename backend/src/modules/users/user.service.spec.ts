@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto, UserSettingsDto } from './user.dto';
 import { UserEntity } from './user.entity';
+import { UserRole } from './user-role.enum';
 
 describe('UserService', () => {
   let service: UserService;
@@ -10,6 +11,7 @@ describe('UserService', () => {
     find: jest.fn().mockResolvedValue([
       {
         id: 'user-1',
+        role: UserRole.BUSINESS_OWNER,
         businessName: 'Mi Negocio',
         whatsappNumber: '+573001234567',
         email: 'test@example.com',
@@ -23,6 +25,7 @@ describe('UserService', () => {
     ]),
     findOne: jest.fn().mockImplementation(async ({ where: { id } }) => ({
       id,
+      role: UserRole.BUSINESS_OWNER,
       businessName: 'Mi Negocio',
       whatsappNumber: '+573001234567',
       email: 'test@example.com',
@@ -72,6 +75,7 @@ describe('UserService', () => {
       const result = await service.getUser('user-123');
 
       expect(result).toHaveProperty('id', 'user-123');
+      expect(result).toHaveProperty('role', UserRole.BUSINESS_OWNER);
     });
 
     it('should return an object with businessName, whatsappNumber and settings fields', async () => {
