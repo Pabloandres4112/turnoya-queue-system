@@ -11,6 +11,7 @@ import { NotificationService } from './modules/notifications/notif.service';
 import { WhatsAppService } from './services/whatsapp.service';
 import { NotificationCoreService } from './services/notification.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { UserEntity } from './modules/users/user.entity';
 
 @Module({
   imports: [
@@ -30,10 +31,13 @@ import { AuthModule } from './modules/auth/auth.module';
         database: configService.get<string>('DB_NAME') || 'turnoya_db',
         entities: ['dist/**/*.entity.js'],
         migrations: ['dist/migrations/*.js'],
-        synchronize: configService.get<string>('NODE_ENV') === 'development',
+        synchronize:
+          configService.get<string>('DB_SYNC') === 'true' ||
+          configService.get<string>('NODE_ENV') === 'development',
         logging: configService.get<string>('NODE_ENV') === 'development',
       }),
     }),
+    TypeOrmModule.forFeature([UserEntity]),
   ],
   controllers: [QueueController, UserController, NotificationController],
   providers: [
