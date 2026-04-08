@@ -1,16 +1,70 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto, UserSettingsDto } from './user.dto';
+import { UserEntity } from './user.entity';
 
 describe('UserService', () => {
   let service: UserService;
+  const mockRepository = {
+    find: jest.fn().mockResolvedValue([
+      {
+        id: 'user-1',
+        businessName: 'Mi Negocio',
+        whatsappNumber: '+573001234567',
+        email: 'test@example.com',
+        settings: {
+          averageServiceTime: 30,
+          automationEnabled: true,
+          excludedContacts: [],
+          maxDaysAhead: 7,
+        },
+      },
+    ]),
+    findOne: jest.fn().mockImplementation(async ({ where: { id } }) => ({
+      id,
+      businessName: 'Mi Negocio',
+      whatsappNumber: '+573001234567',
+      email: 'test@example.com',
+      settings: {
+        averageServiceTime: 30,
+        automationEnabled: true,
+        excludedContacts: [],
+        maxDaysAhead: 7,
+      },
+    })),
+    create: jest.fn().mockImplementation((dto) => dto),
+    save: jest.fn().mockImplementation(async (entity) => ({
+      id: entity.id ?? 'saved-user-id',
+      ...entity,
+    })),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserService],
+      providers: [
+        UserService,
+        {
+          provide: getRepositoryToken(UserEntity),
+          useValue: mockRepository,
+        },
+      ],
     }).compile();
 
     service = module.get<UserService>(UserService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('getAllUsers', () => {
+    it('should return users list', async () => {
+      const result = await service.getAllUsers();
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+    });
   });
 
   describe('getUser', () => {

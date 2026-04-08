@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export interface UserSettings {
   averageServiceTime: number;
@@ -20,6 +26,9 @@ export class UserEntity {
 
   @Column({ type: 'varchar', nullable: true })
   email!: string | null;
+
+  @Column({ type: 'varchar', select: false })
+  passwordHash!: string;
 
   @Column({ type: 'jsonb', nullable: true })
   settings!: UserSettings | null;

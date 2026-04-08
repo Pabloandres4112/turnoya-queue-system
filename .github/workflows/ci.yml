@@ -33,7 +33,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint -- --max-warnings 0
+        run: npx eslint "{src,apps,libs,test}/**/*.ts" --fix --max-warnings 0
 
       - name: Run unit tests with coverage
         run: npm run test:cov

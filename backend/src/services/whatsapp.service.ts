@@ -6,13 +6,12 @@ export class WhatsAppService {
    * Servicio para integración con WhatsApp Business Cloud API
    */
 
-  
   async sendMessage(phoneNumber: string, message: string) {
     // TODO: Implementar integración con WhatsApp Business Cloud API
     console.log(`Enviando mensaje a ${phoneNumber}: ${message}`);
     return {
       success: true,
-      messageId: 'msg-id'
+      messageId: 'msg-id',
     };
   }
 
@@ -27,7 +26,7 @@ export class WhatsAppService {
   }
 
   async sendTurnReady(phoneNumber: string) {
-    const message = `¡Es tu turno! ✅\nPor favor dirígete al punto de atención.`;
+    const message = `¡Es tu turno! \nPor favor dirígete al punto de atención.`;
     return this.sendMessage(phoneNumber, message);
   }
 
@@ -35,7 +34,7 @@ export class WhatsAppService {
     // TODO: Procesar mensajes entrantes de WhatsApp
     console.log('Mensaje recibido:', webhookData);
     return {
-      processed: true
+      processed: true,
     };
   }
 }

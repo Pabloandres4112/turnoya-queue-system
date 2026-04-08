@@ -14,10 +14,12 @@ async function bootstrap() {
   });
 
   // Pipes globales
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   // Filtros globales
   app.useGlobalFilters(new HttpExceptionFilter());

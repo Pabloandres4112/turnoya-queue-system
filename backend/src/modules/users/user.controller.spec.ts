@@ -23,7 +23,9 @@ describe('UserController', () => {
 
   const mockService = {
     getUser: jest.fn().mockResolvedValue(mockUser),
-    createUser: jest.fn().mockResolvedValue({ success: true, message: 'Created', userId: 'new-id' }),
+    createUser: jest
+      .fn()
+      .mockResolvedValue({ success: true, message: 'Created', userId: 'new-id' }),
     updateUser: jest.fn().mockResolvedValue({ success: true, message: 'Updated' }),
     getUserSettings: jest.fn().mockResolvedValue(mockSettings),
   };
