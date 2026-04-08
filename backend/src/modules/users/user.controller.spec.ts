@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { UserRole } from './user-role.enum';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -9,6 +10,7 @@ describe('UserController', () => {
 
   const mockUser = {
     id: 'user-1',
+    role: UserRole.BUSINESS_OWNER,
     businessName: 'Mi Negocio',
     whatsappNumber: '+573001234567',
     settings: {},

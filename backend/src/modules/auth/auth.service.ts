@@ -5,9 +5,11 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../users/user.entity';
 import { LoginDto, RegisterDto } from './auth.dto';
+import { UserRole } from '../users/user-role.enum';
 
 interface JwtPayload {
   sub: string;
+  role: UserRole;
   whatsappNumber: string;
   email: string | null;
   businessName: string;
@@ -35,6 +37,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(dto.password, 10);
 
     const user = this.usersRepository.create({
+      role: UserRole.BUSINESS_OWNER,
       businessName: dto.businessName,
       whatsappNumber: dto.whatsappNumber,
       email: dto.email ?? null,
@@ -65,6 +68,10 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    if (!user.passwordHash) {
+      throw new UnauthorizedException('Este usuario aún no tiene credenciales configuradas');
+    }
+
     const isValid = await bcrypt.compare(dto.password, user.passwordHash);
 
     if (!isValid) {
@@ -90,6 +97,7 @@ export class AuthService {
   private async signToken(user: UserEntity) {
     const payload: JwtPayload = {
       sub: user.id,
+      role: user.role,
       whatsappNumber: user.whatsappNumber,
       email: user.email ?? null,
       businessName: user.businessName,
@@ -101,6 +109,7 @@ export class AuthService {
   private sanitizeUser(user: UserEntity) {
     return {
       id: user.id,
+      role: user.role,
       businessName: user.businessName,
       whatsappNumber: user.whatsappNumber,
       email: user.email ?? null,

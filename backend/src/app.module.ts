@@ -12,6 +12,7 @@ import { WhatsAppService } from './services/whatsapp.service';
 import { NotificationCoreService } from './services/notification.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserEntity } from './modules/users/user.entity';
+import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { UserEntity } from './modules/users/user.entity';
     NotificationService,
     WhatsAppService,
     NotificationCoreService,
+    RolesGuard,
   ],
 })
 export class AppModule {}
