@@ -9,15 +9,17 @@ async function bootstrap() {
 
   // Configuración de CORS
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000', 'http://192.168.100.6'],
     credentials: true,
   });
 
   // Pipes globales
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   // Filtros globales
   app.useGlobalFilters(new HttpExceptionFilter());

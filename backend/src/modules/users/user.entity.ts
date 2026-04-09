@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { UserRole } from './user-role.enum';
 
 export interface UserSettings {
   averageServiceTime: number;
@@ -12,6 +19,13 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.BUSINESS_OWNER,
+  })
+  role!: UserRole;
+
   @Column({ type: 'varchar' })
   businessName!: string;
 
@@ -20,6 +34,9 @@ export class UserEntity {
 
   @Column({ type: 'varchar', nullable: true })
   email!: string | null;
+
+  @Column({ type: 'varchar', nullable: true, select: false })
+  passwordHash!: string | null;
 
   @Column({ type: 'jsonb', nullable: true })
   settings!: UserSettings | null;

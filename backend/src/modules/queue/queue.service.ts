@@ -48,7 +48,7 @@ export class QueueService {
       queue: this.mockQueue,
       total: this.mockQueue.length,
       currentPosition: 1,
-      message: '✅ Datos de DEMO - Cola obtenida correctamente'
+      message: 'Datos de DEMO - Cola obtenida correctamente',
     };
   }
 
@@ -57,7 +57,7 @@ export class QueueService {
     return {
       success: true,
       data: this.mockQueue,
-      message: 'Datos MOCK para testing'
+      message: 'Datos MOCK para testing',
     };
   }
 
@@ -74,30 +74,30 @@ export class QueueService {
       createdAt: new Date(),
       queueDate: new Date(),
     };
-    
+
     this.mockQueue.push(newClient);
-    
+
     return {
       success: true,
-      message: '✅ Cliente agregado a la cola',
+      message: ' Cliente agregado a la cola',
       data: newClient,
-      totalInQueue: this.mockQueue.length
+      totalInQueue: this.mockQueue.length,
     };
   }
 
-  async updateQueueItem(id: string, updateQueueDto: UpdateQueueDto) {
+  async updateQueueItem(_id: string, _updateQueueDto: UpdateQueueDto) {
     // Actualiza un turno en la cola
     return {
       success: true,
-      message: 'Turno actualizado'
+      message: 'Turno actualizado',
     };
   }
 
-  async removeFromQueue(id: string) {
+  async removeFromQueue(_id: string) {
     // Elimina un turno de la cola
     return {
       success: true,
-      message: 'Turno eliminado'
+      message: 'Turno eliminado',
     };
   }
 
@@ -105,15 +105,15 @@ export class QueueService {
     // Avanza al siguiente en la cola
     return {
       success: true,
-      message: 'Siguiente turno'
+      message: 'Siguiente turno',
     };
   }
 
-  async completeQueueItem(id: string) {
+  async completeQueueItem(_id: string) {
     // Marca un turno como completado
     return {
       success: true,
-      message: 'Turno completado'
+      message: 'Turno completado',
     };
   }
 }

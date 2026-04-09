@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de datos PostgreSQL
   postgres:
@@ -15,6 +13,11 @@ services:
       - postgres-dev-data:/var/lib/postgresql/data
     networks:
       - turnoya-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U turnoya -d turnoya_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # pgAdmin para administrar la base de datos
   pgadmin:
@@ -30,7 +33,8 @@ services:
     networks:
       - turnoya-network
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
 networks:
   turnoya-network:
