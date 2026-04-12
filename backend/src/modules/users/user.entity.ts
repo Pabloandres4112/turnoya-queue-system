@@ -44,10 +44,10 @@ export class UserEntity {
   @Column({ type: 'jsonb', nullable: true })
   settings!: UserSettings | null;
 
-  @OneToMany(() => WhatsAppContactEntity, (contact) => contact.platformUser)
+  @OneToMany(() => WhatsAppContactEntity, (contact) => contact.business)
   whatsappContacts!: WhatsAppContactEntity[];
 
-  @OneToMany(() => QueueEntity, (queueItem) => queueItem.platformUser)
+  @OneToMany(() => QueueEntity, (queueItem) => queueItem.business)
   queueItems!: QueueEntity[];
 
   @CreateDateColumn()

@@ -18,6 +18,7 @@ export enum QueueStatus {
   NO_SHOW = 'noShow',
 }
 
+@Index('idx_queue_business_date_status', ['businessId', 'queueDate', 'status'])
 @Entity('queue')
 export class QueueEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -29,16 +30,15 @@ export class QueueEntity {
   @Column({ type: 'varchar' })
   phoneNumber!: string;
 
-  // Nullable temporalmente para no romper datos historicos; luego migrar a NOT NULL.
-  @Index('idx_queue_platform_user_id')
-  @Column({ type: 'uuid', nullable: true })
-  platformUserId!: string | null;
+  @Index('idx_queue_business_id')
+  @Column({ type: 'uuid' })
+  businessId!: string;
 
   @ManyToOne(() => UserEntity, (user) => user.queueItems, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'platformUserId' })
-  platformUser!: UserEntity | null;
+  @JoinColumn({ name: 'businessId' })
+  business!: UserEntity;
 
   @Index('idx_queue_contact_id')
   @Column({ type: 'uuid', nullable: true })

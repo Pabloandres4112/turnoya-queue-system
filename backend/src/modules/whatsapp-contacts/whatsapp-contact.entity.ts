@@ -13,19 +13,19 @@ import { UserEntity } from '../users/user.entity';
 import { QueueEntity } from '../queue/queue.entity';
 
 @Entity('whatsapp_contacts')
-@Index(['platformUserId', 'whatsappNumber'], { unique: true })
+@Index(['businessId', 'whatsappNumber'], { unique: true })
 export class WhatsAppContactEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({ type: 'uuid' })
-  platformUserId!: string;
+  businessId!: string;
 
   @ManyToOne(() => UserEntity, (user) => user.whatsappContacts, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'platformUserId' })
-  platformUser!: UserEntity;
+  @JoinColumn({ name: 'businessId' })
+  business!: UserEntity;
 
   @Column({ type: 'varchar' })
   whatsappNumber!: string;

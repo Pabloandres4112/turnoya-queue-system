@@ -23,7 +23,7 @@ export class UserService {
       role: user.role,
       businessName: user.businessName,
       whatsappNumber: user.whatsappNumber,
-      settings: user.settings ?? {},
+      settings: user.settings ?? null,
     }));
   }
 
@@ -39,7 +39,7 @@ export class UserService {
       role: user.role,
       businessName: user.businessName,
       whatsappNumber: user.whatsappNumber,
-      settings: user.settings ?? {},
+      settings: user.settings ?? null,
     };
   }
 
