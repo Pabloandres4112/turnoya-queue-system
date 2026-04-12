@@ -39,7 +39,7 @@ describe('QueueService', () => {
       expect(item).toHaveProperty('phoneNumber');
       expect(item).toHaveProperty('position');
       expect(item).toHaveProperty('status');
-      expect(item).toHaveProperty('estimatedTime');
+      expect(item).toHaveProperty('estimatedTimeMinutes');
       expect(item).toHaveProperty('priority');
     });
   });
@@ -88,7 +88,7 @@ describe('QueueService', () => {
       expect(result.totalInQueue).toBe(initialLength + 1);
     });
 
-    it('should use default estimatedTime of 30 when not provided', async () => {
+    it('should use default estimatedTimeMinutes of 30 when not provided', async () => {
       const dto: CreateQueueDto = {
         clientName: 'Default Time Client',
         phoneNumber: '+573003333333',
@@ -96,19 +96,19 @@ describe('QueueService', () => {
 
       const result = await service.addToQueue(dto);
 
-      expect(result.data.estimatedTime).toBe(30);
+      expect(result.data.estimatedTimeMinutes).toBe(30);
     });
 
-    it('should use provided estimatedTime', async () => {
+    it('should use provided estimatedTimeMinutes', async () => {
       const dto: CreateQueueDto = {
         clientName: 'Custom Time Client',
         phoneNumber: '+573004444444',
-        estimatedTime: 45,
+        estimatedTimeMinutes: 45,
       };
 
       const result = await service.addToQueue(dto);
 
-      expect(result.data.estimatedTime).toBe(45);
+      expect(result.data.estimatedTimeMinutes).toBe(45);
     });
 
     it('should default priority to false when not provided', async () => {

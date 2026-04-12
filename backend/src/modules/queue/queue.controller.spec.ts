@@ -15,7 +15,7 @@ describe('QueueController', () => {
         phoneNumber: '+573001234567',
         position: 1,
         status: 'in-progress',
-        estimatedTime: 15,
+        estimatedTimeMinutes: 15,
         priority: false,
         createdAt: new Date(),
         queueDate: new Date(),

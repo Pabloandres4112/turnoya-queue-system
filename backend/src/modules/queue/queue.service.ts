@@ -11,7 +11,7 @@ export class QueueService {
       phoneNumber: '+573001234567',
       position: 1,
       status: 'in-progress',
-      estimatedTime: 15,
+      estimatedTimeMinutes: 15,
       priority: false,
       createdAt: new Date(),
       queueDate: new Date(),
@@ -22,7 +22,7 @@ export class QueueService {
       phoneNumber: '+573009876543',
       position: 2,
       status: 'waiting',
-      estimatedTime: 30,
+      estimatedTimeMinutes: 30,
       priority: true,
       createdAt: new Date(),
       queueDate: new Date(),
@@ -33,7 +33,7 @@ export class QueueService {
       phoneNumber: '+573005555555',
       position: 3,
       status: 'waiting',
-      estimatedTime: 45,
+      estimatedTimeMinutes: 45,
       priority: false,
       createdAt: new Date(),
       queueDate: new Date(),
@@ -69,7 +69,7 @@ export class QueueService {
       phoneNumber: createQueueDto.phoneNumber,
       position: this.mockQueue.length + 1,
       status: 'waiting' as const,
-      estimatedTime: createQueueDto.estimatedTime ?? 30, // valor por defecto
+      estimatedTimeMinutes: createQueueDto.estimatedTimeMinutes ?? 30, // minutos; default hasta tener averageServiceTime del negocio
       priority: createQueueDto.priority ?? false, // valor por defecto
       createdAt: new Date(),
       queueDate: new Date(),
