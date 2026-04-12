@@ -2,16 +2,16 @@
 
 Objetivo: mantener un backlog real del estado actual del backend para cerrar el MVP multi-negocio (WhatsApp-first).
 
-Ultima actualizacion: 12-04-2026
+Ultima actualizacion: 12-04-2026 (segunda revision)
 
 ---
 
 ## Resumen Ejecutivo
 
 Total de tareas activas: 16
-- Completadas: 7
+- Completadas: 8
 - En progreso: 2
-- Pendientes: 7
+- Pendientes: 6
 
 Estado general:
 - Auth y roles base: listos
@@ -73,16 +73,35 @@ Archivo clave:
 - backend/src/modules/whatsapp-contacts/whatsapp-contact.entity.ts
 
 ### 6. Relaciones y foreign keys multi-negocio (DONE)
-- FK whatsapp_contacts.platformUserId -> users.id
-- FK queue.platformUserId -> users.id
-- FK queue.contactId -> whatsapp_contacts.id
+- FK queue.businessId -> users.id (NOT NULL, con indice)
+- FK queue.contactId -> whatsapp_contacts.id (nullable)
+- FK whatsapp_contacts.businessId -> users.id
+- Indice compuesto: (businessId, queueDate, status) para queries de cola del dia.
+- Columna platformUserId renombrada a businessId en queue y whatsapp_contacts.
 
 Archivos clave:
 - backend/src/modules/users/user.entity.ts
 - backend/src/modules/queue/queue.entity.ts
 - backend/src/modules/whatsapp-contacts/whatsapp-contact.entity.ts
 
-### 7. Base de testing inicial (DONE)
+### 7. Hardening del schema y contratos de tipos (DONE)
+- estimatedTime renombrado a estimatedTimeMinutes en entity, DTO, service, specs y whatsapp.service.
+- UserSettings documentada con JSDoc (unidades, semantica por campo) como unica fuente de verdad en user.entity.
+- user.types.ts re-exporta UserSettings desde entity; eliminada definicion duplicada.
+- User.settings tipado como UserSettings | null (ya no acepta Record<string, any>).
+- Estrategia de position documentada en entity: el servicio recalcula en bloque, sin unique en BD.
+- Decision de historico documentada en queueDate: la tabla acumula, no se purga automaticamente.
+- 51 tests pasando tras el rename.
+
+Archivos clave:
+- backend/src/modules/queue/queue.entity.ts
+- backend/src/modules/queue/queue.dto.ts
+- backend/src/modules/queue/queue.service.ts
+- backend/src/modules/users/user.entity.ts
+- backend/src/modules/users/user.types.ts
+- backend/src/services/whatsapp.service.ts
+
+### 8. Base de testing inicial (DONE)
 - Tests unitarios existentes para users, queue y notifications.
 
 Archivos clave:
@@ -96,7 +115,7 @@ Archivos clave:
 
 ## 2) Tareas En Progreso
 
-### 8. Cola persistente en BD real (IN PROGRESS)
+### 9. Cola persistente en BD real (IN PROGRESS)
 Estado actual:
 - queue.entity ya existe y esta relacionada.
 - queue.service sigue en memoria con mockQueue.
@@ -110,44 +129,45 @@ Archivos a trabajar:
 - backend/src/modules/queue/queue.service.ts
 - backend/src/modules/queue/queue.controller.ts
 
-### 9. Aislamiento por negocio en operaciones de cola (IN PROGRESS)
+### 10. Aislamiento por negocio en operaciones de cola (IN PROGRESS)
 Estado actual:
 - Hay roles, pero no ownership estricto en cola.
 
 Falta:
-- Filtrar queries por platformUserId del JWT.
+- Filtrar queries por businessId del JWT.
 - Impedir que un negocio vea/modifique cola de otro.
 
 ---
 
 ## 3) Pendientes Prioritarios (MVP)
 
-### 10. Endpoints de queue orientados a operacion real (TODO - ALTA)
-- GET /queue (del negocio autenticado y fecha actual)
-- GET /queue/:date
-- POST /queue
+### 11. Endpoints de queue orientados a operacion real + reglas de negocio (TODO - ALTA)
+Endpoints:
+- GET /queue — cola del dia del negocio autenticado.
+- GET /queue/:date — cola por fecha.
+- POST /queue — agregar turno (asigna businessId desde JWT).
 - PUT /queue/:id
 - DELETE /queue/:id
-- POST /queue/next
+- POST /queue/next — avanza turno, recalcula posiciones.
 - POST /queue/complete/:id
 - POST /queue/skip/:id
-- POST /queue/pause
-- POST /queue/resume
+- POST /queue/pause / POST /queue/resume
+
+Reglas de negocio a implementar:
+- Recalcular position y estimatedTimeMinutes al agregar/avanzar/cancelar.
+- Evitar duplicados: mismo phoneNumber en el mismo dia+negocio.
+- Prioridad: insertar delante de los waiting no prioritarios.
+- maxDaysAhead aplicado al crear turno.
+- Bloquear creacion si la cola esta en pausa.
 
 Nota:
-- Algunos endpoints existen, pero hoy no tienen logica productiva real.
-
-### 11. Reglas de negocio de cola (TODO - ALTA)
-- Recalcular posicion y tiempo estimado real.
-- Evitar duplicados por telefono en el mismo dia/negocio.
-- Soportar prioridad correctamente.
-- Estado de cola pausada/reanudada.
-- maxDaysAhead aplicado en creacion de turnos.
+- Algunos endpoints existen en el controller pero usan mock; hay que reemplazar la logica completa.
 
 ### 12. Integracion real de WhatsApp Cloud API (TODO - ALTA)
-- Cliente HTTP real a Meta.
-- Variables de entorno reales.
-- Manejo de errores y reintentos.
+- Cliente HTTP real a Meta (axios o fetch nativo).
+- Variables de entorno reales (WHATSAPP_ACCESS_TOKEN, WHATSAPP_PHONE_NUMBER_ID).
+- Manejo de errores y reintentos basicos.
+- Validar que contacto no esta en excludedContacts antes de enviar.
 
 Archivo principal:
 - backend/src/services/whatsapp.service.ts
@@ -163,19 +183,19 @@ Archivos sugeridos:
 - backend/src/modules/webhooks/webhooks.service.ts
 
 ### 14. Contactos excluidos y automatizaciones (TODO - MEDIA)
-- Endpoints para agregar/remover excludedContacts.
-- Aplicar exclusion antes de enviar mensajes automáticos.
+- Endpoints para agregar/remover excludedContacts en settings del negocio.
+- Aplicar exclusion en whatsapp.service antes de enviar mensaje.
 
 ### 15. Historial de mensajes (TODO - MEDIA)
-- Entidad MessageLog.
-- Guardar incoming/outgoing y estado del envio.
+- Entidad MessageLog con FK a users.id y a whatsapp_contacts.id.
+- Guardar incoming/outgoing, timestamp y estado (sent, delivered, read, failed).
 
 ### 16. Calidad y docs de salida MVP (TODO - MEDIA)
-- Completar tests faltantes:
-  - AuthService/AuthController
-  - QueueService con TypeORM real
-  - E2E de auth + queue + permisos
-- Swagger/OpenAPI para consumo de API.
+- Tests pendientes:
+  - AuthService/AuthController (ninguno existe aun).
+  - QueueService con repository mock (los spec actuales prueban el mock en memoria, no TypeORM).
+  - E2E basico: register -> login -> crear turno -> next -> complete.
+- Swagger/OpenAPI en todos los controllers.
 
 ---
 
@@ -197,16 +217,17 @@ Estas tareas se ajustaron por nuevo requerimiento multi-negocio:
 
 Sprint objetivo: cerrar la Etapa A del MVP (cola real en BD por negocio)
 
-1. Migrar QueueService a TypeORM real y eliminar mockQueue.
-2. Forzar uso de platformUserId desde JWT en todos los endpoints queue.
-3. Implementar next/complete/skip con recalculo de posiciones.
-4. Agregar tests unitarios de QueueService con repository mock.
-5. Validar flujo completo en Docker + Postman.
+1. Migrar QueueService a TypeORM real (inyectar QueueRepository, eliminar mockQueue).
+2. Asignar businessId desde el JWT en create/get/next/complete/skip.
+3. Implementar recalculo de position y estimatedTimeMinutes al agregar/avanzar/cancelar.
+4. Agregar specs de QueueService con getRepositoryToken(QueueEntity) mockeado.
+5. Rebuilded + validacion completa en Docker + Postman.
 
 Definition of done del sprint:
-- Crear/consultar/avanzar/completar turnos persiste en PostgreSQL.
+- Crear/consultar/avanzar/completar turnos persiste en PostgreSQL por negocio.
 - Ningun endpoint de queue usa datos hardcodeados.
-- Un negocio no puede operar cola de otro.
+- Un negocio no puede leer ni modificar la cola de otro.
+- Tests nuevos de QueueService pasan.
 
 ---
 
@@ -222,8 +243,10 @@ Definition of done del sprint:
 
 - Auth JWT funcionando: SI
 - Roles y permisos base: SI
-- Relaciones DB multi-negocio: SI
-- Queue persistente real: NO
+- Relaciones DB multi-negocio (FKs reales con businessId): SI
+- Schema hardening (tipos, unidades, contratos): SI
+- Tests base (51 pasando): SI
+- Queue persistente real por negocio: NO
 - Webhook WhatsApp real: NO
 - Mensajeria automatica real: NO
 - E2E criticos MVP: NO
