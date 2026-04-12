@@ -5,7 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
 } from 'typeorm';
+import { UserEntity } from '../users/user.entity';
+import { QueueEntity } from '../queue/queue.entity';
 
 @Entity('whatsapp_contacts')
 @Index(['platformUserId', 'whatsappNumber'], { unique: true })
@@ -16,6 +21,12 @@ export class WhatsAppContactEntity {
   @Column({ type: 'uuid' })
   platformUserId!: string;
 
+  @ManyToOne(() => UserEntity, (user) => user.whatsappContacts, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'platformUserId' })
+  platformUser!: UserEntity;
+
   @Column({ type: 'varchar' })
   whatsappNumber!: string;
 
@@ -24,6 +35,9 @@ export class WhatsAppContactEntity {
 
   @Column({ type: 'jsonb', nullable: true })
   metadata!: Record<string, unknown> | null;
+
+  @OneToMany(() => QueueEntity, (queueItem) => queueItem.contact)
+  queueItems!: QueueEntity[];
 
   @CreateDateColumn()
   createdAt!: Date;

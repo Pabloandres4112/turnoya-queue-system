@@ -4,8 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { UserRole } from './user-role.enum';
+import { WhatsAppContactEntity } from '../whatsapp-contacts/whatsapp-contact.entity';
+import { QueueEntity } from '../queue/queue.entity';
 
 export interface UserSettings {
   averageServiceTime: number;
@@ -40,6 +43,12 @@ export class UserEntity {
 
   @Column({ type: 'jsonb', nullable: true })
   settings!: UserSettings | null;
+
+  @OneToMany(() => WhatsAppContactEntity, (contact) => contact.platformUser)
+  whatsappContacts!: WhatsAppContactEntity[];
+
+  @OneToMany(() => QueueEntity, (queueItem) => queueItem.platformUser)
+  queueItems!: QueueEntity[];
 
   @CreateDateColumn()
   createdAt!: Date;
