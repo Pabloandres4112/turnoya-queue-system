@@ -23,9 +23,11 @@ export const config = {
 
   // Configuración de WhatsApp Business API
   whatsapp: {
-    apiUrl: process.env.WHATSAPP_API_URL,
-    apiToken: process.env.WHATSAPP_API_TOKEN,
+    apiUrl: process.env.WHATSAPP_API_URL || process.env.WHATSAPP_BASE_URL,
+    apiToken: process.env.WHATSAPP_ACCESS_TOKEN || process.env.WHATSAPP_API_TOKEN,
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
+    maxRetries: parseInt(process.env.WHATSAPP_MAX_RETRIES || '2', 10),
+    retryDelayMs: parseInt(process.env.WHATSAPP_RETRY_DELAY_MS || '1000', 10),
   },
 
   // Configuración de notificaciones

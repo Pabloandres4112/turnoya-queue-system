@@ -59,3 +59,29 @@ export class UpdateUserDto {
   @IsOptional()
   settings?: UserSettingsDto;
 }
+
+/**
+ * DTO para agregar un contacto a la lista de exclusión.
+ * Formato E.164: +57XXXXXXXXXX
+ */
+export class AddExcludedContactDto {
+  @IsPhoneNumber()
+  phoneNumber!: string;
+}
+
+/**
+ * DTO para remover un contacto de la lista de exclusión.
+ */
+export class RemoveExcludedContactDto {
+  @IsPhoneNumber()
+  phoneNumber!: string;
+}
+
+/**
+ * Respuesta con la lista actualizada de contactos excluidos.
+ */
+export class ExcludedContactsResponseDto {
+  success: boolean;
+  message: string;
+  excludedContacts: string[];
+}
