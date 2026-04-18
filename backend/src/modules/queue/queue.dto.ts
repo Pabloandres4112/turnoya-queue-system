@@ -7,17 +7,26 @@ export enum QueueStatus {
   NO_SHOW = 'noShow',
 }
 
-export interface MockQueueItem {
+
+
+export interface QueueItem {
   id: string;
   clientName: string;
   phoneNumber: string;
   position: number;
-  status: string;
+  status: QueueStatus;
   /** Tiempo estimado de espera en minutos. */
   estimatedTimeMinutes: number;
   priority: boolean;
   createdAt: Date;
   queueDate: Date;
+}
+
+export interface GetQueueResponse {
+  queue: QueueItem[];
+  total: number;
+  currentPosition: number;
+  message: string;
 }
 
 export class CreateQueueDto {

@@ -12,6 +12,7 @@ import { WhatsAppService } from './services/whatsapp.service';
 import { NotificationCoreService } from './services/notification.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserEntity } from './modules/users/user.entity';
+import { QueueEntity } from './modules/queue/queue.entity';
 import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
@@ -38,7 +39,7 @@ import { RolesGuard } from './common/guards/roles.guard';
         logging: configService.get<string>('NODE_ENV') === 'development',
       }),
     }),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, QueueEntity]),
   ],
   controllers: [QueueController, UserController, NotificationController],
   providers: [
