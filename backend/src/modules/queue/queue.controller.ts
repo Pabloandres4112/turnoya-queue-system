@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req, UnauthorizedException, } from '@nestjs/common';
 import { Request } from 'express';
 import { QueueService } from './queue.service';
 import { CreateQueueDto, UpdateQueueDto } from './queue.dto';
@@ -14,14 +14,22 @@ interface AuthRequest extends Request {
 export class QueueController {
   constructor(private readonly queueService: QueueService) { }
 
+  private getBusinessId(req: AuthRequest): string {
+    const businessId = req.user?.id;
+    if (!businessId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
+    return businessId;
+  }
+
   @Get()
   async getQueue(@Req() req: AuthRequest): Promise<any> {
-    return this.queueService.getQueue(req.user.id);
+    return this.queueService.getQueue(this.getBusinessId(req));
   }
 
   @Post()
   async addToQueue(@Req() req: AuthRequest, @Body() createQueueDto: CreateQueueDto): Promise<any> {
-    return this.queueService.addToQueue(req.user.id, createQueueDto);
+    return this.queueService.addToQueue(this.getBusinessId(req), createQueueDto);
   }
 
   @Put(':id')
@@ -30,21 +38,21 @@ export class QueueController {
     @Param('id') id: string,
     @Body() updateQueueDto: UpdateQueueDto,
   ) {
-    return this.queueService.updateQueueItem(req.user.id, id, updateQueueDto);
+    return this.queueService.updateQueueItem(this.getBusinessId(req), id, updateQueueDto);
   }
 
   @Delete(':id')
   async removeFromQueue(@Req() req: AuthRequest, @Param('id') id: string) {
-    return this.queueService.removeFromQueue(req.user.id, id);
+    return this.queueService.removeFromQueue(this.getBusinessId(req), id);
   }
 
   @Post('next')
   async nextInQueue(@Req() req: AuthRequest) {
-    return this.queueService.nextInQueue(req.user.id);
+    return this.queueService.nextInQueue(this.getBusinessId(req));
   }
 
   @Post('complete/:id')
   async completeQueueItem(@Req() req: AuthRequest, @Param('id') id: string) {
-    return this.queueService.completeQueueItem(req.user.id, id);
+    return this.queueService.completeQueueItem(this.getBusinessId(req), id);
   }
 }
