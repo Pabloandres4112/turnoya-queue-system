@@ -18,6 +18,7 @@ export enum QueueStatus {
   NO_SHOW = 'noShow',
 }
 
+@Index('idx_queue_business_date_status', ['businessId', 'queueDate', 'status'])
 @Entity('queue')
 export class QueueEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -29,16 +30,15 @@ export class QueueEntity {
   @Column({ type: 'varchar' })
   phoneNumber!: string;
 
-  // Nullable temporalmente para no romper datos historicos; luego migrar a NOT NULL.
-  @Index('idx_queue_platform_user_id')
-  @Column({ type: 'uuid', nullable: true })
-  platformUserId!: string | null;
+  @Index('idx_queue_business_id')
+  @Column({ type: 'uuid' })
+  businessId!: string;
 
   @ManyToOne(() => UserEntity, (user) => user.queueItems, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'platformUserId' })
-  platformUser!: UserEntity | null;
+  @JoinColumn({ name: 'businessId' })
+  business!: UserEntity;
 
   @Index('idx_queue_contact_id')
   @Column({ type: 'uuid', nullable: true })
@@ -53,11 +53,18 @@ export class QueueEntity {
   @Column({ type: 'enum', enum: QueueStatus, default: QueueStatus.WAITING })
   status!: QueueStatus;
 
+  /**
+   * Posicion del turno en la cola del dia para este negocio.
+   * El servicio asigna y recalcula este valor; no se usa unique en BD
+   * porque las posiciones se reasignan en bloque al avanzar/cancelar.
+   * Valor inicial: siguiente disponible despues del ultimo activo del dia.
+   */
   @Column({ type: 'int', default: 0 })
   position!: number;
 
+  /** Tiempo estimado de espera hasta que sea atendido, en minutos. */
   @Column({ type: 'int', nullable: true })
-  estimatedTime!: number | null;
+  estimatedTimeMinutes!: number | null;
 
   @Column({ type: 'boolean', default: false })
   priority!: boolean;
@@ -68,6 +75,12 @@ export class QueueEntity {
   @UpdateDateColumn()
   updatedAt!: Date;
 
+  /**
+   * Fecha del turno (sin hora). Permite acumular historico por dia.
+   * Decision de diseno: la tabla queue acumula historico; no se purga automaticamente.
+   * El indice idx_queue_business_date_status garantiza queries eficientes por dia.
+   * Limpieza periodica queda como tarea operativa futura (cron o job externo).
+   */
   @Column({ type: 'date' })
   queueDate!: Date;
 }

@@ -15,8 +15,8 @@ export class WhatsAppService {
     };
   }
 
-  async sendQueueConfirmation(phoneNumber: string, position: number, estimatedTime: number) {
-    const message = `¡Turno confirmado! 🎉\n\nEstás en la posición ${position}.\nTiempo estimado de espera: ${estimatedTime} minutos.`;
+  async sendQueueConfirmation(phoneNumber: string, position: number, estimatedTimeMinutes: number) {
+    const message = `¡Turno confirmado! 🎉\n\nEstás en la posición ${position}.\nTiempo estimado de espera: ${estimatedTimeMinutes} minutos.`;
     return this.sendMessage(phoneNumber, message);
   }
 
