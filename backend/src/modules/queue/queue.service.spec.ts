@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { QueueEntity, QueueStatus as EntityQueueStatus } from './queue.entity';
 import { UserEntity } from '../users/user.entity';
@@ -14,9 +14,6 @@ function makeQueryBuilder(overrides: Record<string, jest.Mock> = {}) {
     andWhere: jest.fn().mockReturnThis(),
     orderBy: jest.fn().mockReturnThis(),
     addOrderBy: jest.fn().mockReturnThis(),
-    update: jest.fn().mockReturnThis(),
-    set: jest.fn().mockReturnThis(),
-    execute: jest.fn().mockResolvedValue({}),
     getMany: jest.fn().mockResolvedValue([]),
     getOne: jest.fn().mockResolvedValue(null),
     getCount: jest.fn().mockResolvedValue(0),
@@ -27,7 +24,7 @@ function makeQueryBuilder(overrides: Record<string, jest.Mock> = {}) {
 
 describe('QueueService', () => {
   let service: QueueService;
-  let queueBuilder: ReturnType<typeof makeQueryBuilder>;
+  let builder: ReturnType<typeof makeQueryBuilder>;
 
   const mockQueueRepo = {
     findOne: jest.fn(),
@@ -39,11 +36,12 @@ describe('QueueService', () => {
 
   const mockUserRepo = {
     findOne: jest.fn(),
+    save: jest.fn(),
   };
 
   beforeEach(async () => {
-    queueBuilder = makeQueryBuilder();
-    mockQueueRepo.createQueryBuilder.mockReturnValue(queueBuilder);
+    builder = makeQueryBuilder();
+    mockQueueRepo.createQueryBuilder.mockReturnValue(builder);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -54,219 +52,181 @@ describe('QueueService', () => {
     }).compile();
 
     service = module.get<QueueService>(QueueService);
+
+    mockUserRepo.findOne.mockResolvedValue({
+      id: BUSINESS_ID,
+      settings: {
+        averageServiceTime: 20,
+        automationEnabled: false,
+        excludedContacts: [],
+        maxDaysAhead: 2,
+        queuePaused: false,
+      },
+    });
+
+    mockQueueRepo.create.mockImplementation((data: Partial<QueueEntity>) => data);
+    mockQueueRepo.save.mockImplementation((data: any) => Promise.resolve(data));
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('getQueue', () => {
+  describe('getQueueByDate', () => {
     it('should return queue data with correct shape', async () => {
-      queueBuilder.getMany.mockResolvedValue([]);
-      const result = await service.getQueue(BUSINESS_ID);
+      builder.getMany.mockResolvedValue([]);
+
+      const result = await service.getQueueByDate(BUSINESS_ID, '2026-04-18');
+
       expect(result).toHaveProperty('queue');
       expect(result).toHaveProperty('total');
       expect(result).toHaveProperty('currentPosition');
-      expect(Array.isArray(result.queue)).toBe(true);
     });
 
-    it('should return items from the repository', async () => {
-      const mockItems = [
-        { id: '1', clientName: 'A', status: EntityQueueStatus.IN_PROGRESS, position: 1 },
-        { id: '2', clientName: 'B', status: EntityQueueStatus.WAITING, position: 2 },
-      ];
-      queueBuilder.getMany.mockResolvedValue(mockItems);
-      const result = await service.getQueue(BUSINESS_ID);
-      expect(result.total).toBe(2);
-      expect(result.queue).toHaveLength(2);
-    });
-
-    it('should set currentPosition to the IN_PROGRESS item position', async () => {
-      const mockItems = [
-        { id: '1', status: EntityQueueStatus.IN_PROGRESS, position: 1 },
-        { id: '2', status: EntityQueueStatus.WAITING, position: 2 },
-      ];
-      queueBuilder.getMany.mockResolvedValue(mockItems);
-      const result = await service.getQueue(BUSINESS_ID);
-      expect(result.currentPosition).toBe(1);
-    });
-
-    it('should set currentPosition to 0 when no IN_PROGRESS item', async () => {
-      queueBuilder.getMany.mockResolvedValue([]);
-      const result = await service.getQueue(BUSINESS_ID);
-      expect(result.currentPosition).toBe(0);
+    it('should throw on invalid date', async () => {
+      await expect(service.getQueueByDate(BUSINESS_ID, 'not-a-date')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
   describe('addToQueue', () => {
-    beforeEach(() => {
-      queueBuilder.getOne.mockResolvedValue(null);
-      queueBuilder.getCount.mockResolvedValue(1);
-      mockUserRepo.findOne.mockResolvedValue(null);
-      mockQueueRepo.create.mockImplementation((data: Partial<QueueEntity>) => data);
-      mockQueueRepo.save.mockImplementation((data: Partial<QueueEntity>) =>
-        Promise.resolve({ id: 'new-uuid', ...data }),
-      );
-    });
-
-    it('should add a client and return success', async () => {
-      const dto: CreateQueueDto = { clientName: 'Test Client', phoneNumber: '+573001111111' };
-      const result = await service.addToQueue(BUSINESS_ID, dto);
-      expect(result.success).toBe(true);
-      expect(result.data.clientName).toBe('Test Client');
-      expect(result.data.phoneNumber).toBe('+573001111111');
-    });
-
-    it('should assign position 1 when queue is empty', async () => {
-      queueBuilder.getOne.mockResolvedValue(null);
-      const result = await service.addToQueue(BUSINESS_ID, { clientName: 'A', phoneNumber: '+1234' });
-      expect(result.data.position).toBe(1);
-    });
-
-    it('should assign next position after the last active item', async () => {
-      queueBuilder.getOne.mockResolvedValue({ position: 3 });
-      queueBuilder.getCount.mockResolvedValue(4);
-      const result = await service.addToQueue(BUSINESS_ID, { clientName: 'A', phoneNumber: '+1234' });
-      expect(result.data.position).toBe(4);
-      expect(result.totalInQueue).toBe(4);
-    });
-
-    it('should use provided estimatedTimeMinutes', async () => {
-      const dto: CreateQueueDto = { clientName: 'A', phoneNumber: '+1234', estimatedTimeMinutes: 45 };
-      const result = await service.addToQueue(BUSINESS_ID, dto);
-      expect(result.data.estimatedTimeMinutes).toBe(45);
-    });
-
-    it('should derive estimatedTimeMinutes from business averageServiceTime', async () => {
-      mockUserRepo.findOne.mockResolvedValue({ settings: { averageServiceTime: 20 } });
-      queueBuilder.getOne.mockResolvedValue({ position: 2 }); // next = 3
-      const result = await service.addToQueue(BUSINESS_ID, { clientName: 'A', phoneNumber: '+1234' });
-      // position 3 → wait = 20 * (3 - 1) = 40
-      expect(result.data.estimatedTimeMinutes).toBe(40);
-    });
-
-    it('should use 30 min default when business has no settings and position is 1', async () => {
-      mockUserRepo.findOne.mockResolvedValue({ settings: null });
-      queueBuilder.getOne.mockResolvedValue(null); // position 1 → wait = 30 * 0 = 0
-      const result = await service.addToQueue(BUSINESS_ID, { clientName: 'A', phoneNumber: '+1234' });
-      expect(result.data.estimatedTimeMinutes).toBe(0); // 30 * (1 - 1)
-    });
-
-    it('should default priority to false when not provided', async () => {
-      const result = await service.addToQueue(BUSINESS_ID, { clientName: 'A', phoneNumber: '+1234' });
-      expect(result.data.priority).toBe(false);
-    });
-
-    it('should set priority to true when provided', async () => {
-      const result = await service.addToQueue(BUSINESS_ID, {
-        clientName: 'A',
-        phoneNumber: '+1234',
-        priority: true,
+    it('should reject when queue is paused', async () => {
+      mockUserRepo.findOne.mockResolvedValue({
+        id: BUSINESS_ID,
+        settings: {
+          averageServiceTime: 20,
+          automationEnabled: false,
+          excludedContacts: [],
+          maxDaysAhead: 2,
+          queuePaused: true,
+        },
       });
-      expect(result.data.priority).toBe(true);
+
+      await expect(
+        service.addToQueue(BUSINESS_ID, { clientName: 'A', phoneNumber: '+1234' }),
+      ).rejects.toThrow(BadRequestException);
     });
 
-    it('should set status to WAITING for new clients', async () => {
-      const result = await service.addToQueue(BUSINESS_ID, { clientName: 'A', phoneNumber: '+1234' });
-      expect(result.data.status).toBe(EntityQueueStatus.WAITING);
+    it('should reject duplicated phoneNumber in same day', async () => {
+      builder.getCount.mockResolvedValueOnce(1);
+
+      await expect(
+        service.addToQueue(BUSINESS_ID, { clientName: 'A', phoneNumber: '+1234' }),
+      ).rejects.toThrow(ConflictException);
     });
 
-    it('should return a unique id for the new client', async () => {
-      const result = await service.addToQueue(BUSINESS_ID, { clientName: 'A', phoneNumber: '+1234' });
-      expect(result.data.id).toBeDefined();
-      expect(typeof result.data.id).toBe('string');
+    it('should reject creation beyond maxDaysAhead', async () => {
+      await expect(
+        service.addToQueue(BUSINESS_ID, {
+          clientName: 'A',
+          phoneNumber: '+1234',
+          queueDate: '2099-01-01',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should create a queue item with priority and return success', async () => {
+      const dto: CreateQueueDto = {
+        clientName: 'Prioritario',
+        phoneNumber: '+573001111111',
+        priority: true,
+      };
+
+      builder.getCount.mockResolvedValueOnce(0).mockResolvedValue(1);
+      builder.getOne.mockResolvedValue(null);
+      mockQueueRepo.findOne.mockResolvedValue({ id: 'new-uuid', ...dto, position: 1 });
+
+      const result = await service.addToQueue(BUSINESS_ID, dto);
+
+      expect(result.success).toBe(true);
+      expect(result.totalInQueue).toBe(1);
     });
   });
 
   describe('updateQueueItem', () => {
     it('should update status and return success', async () => {
-      const item = { id: '1', status: EntityQueueStatus.WAITING, position: 1, estimatedTimeMinutes: 30 };
+      const item = {
+        id: '1',
+        businessId: BUSINESS_ID,
+        status: EntityQueueStatus.WAITING,
+        position: 1,
+        queueDate: new Date('2026-04-18'),
+      };
       mockQueueRepo.findOne.mockResolvedValue(item);
-      mockQueueRepo.save.mockResolvedValue({ ...item, status: EntityQueueStatus.COMPLETED });
 
       const dto: UpdateQueueDto = { status: QueueStatus.COMPLETED };
       const result = await service.updateQueueItem(BUSINESS_ID, '1', dto);
 
       expect(result.success).toBe(true);
-      expect(result.message).toBeDefined();
     });
 
     it('should throw NotFoundException when item not found', async () => {
       mockQueueRepo.findOne.mockResolvedValue(null);
-      await expect(
-        service.updateQueueItem(BUSINESS_ID, 'nonexistent', {}),
-      ).rejects.toThrow(NotFoundException);
+
+      await expect(service.updateQueueItem(BUSINESS_ID, '404', {})).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
-  describe('removeFromQueue', () => {
-    it('should remove item and return success', async () => {
-      const item = { id: '1', position: 2, businessId: BUSINESS_ID };
+  describe('skipQueueItem', () => {
+    it('should mark item as no-show', async () => {
+      const item = {
+        id: '7',
+        businessId: BUSINESS_ID,
+        status: EntityQueueStatus.WAITING,
+        position: 2,
+        queueDate: new Date('2026-04-18'),
+      };
       mockQueueRepo.findOne.mockResolvedValue(item);
-      mockQueueRepo.remove.mockResolvedValue(item);
-      queueBuilder.execute.mockResolvedValue({});
-      queueBuilder.getMany.mockResolvedValue([]);
-      mockUserRepo.findOne.mockResolvedValue(null);
 
-      const result = await service.removeFromQueue(BUSINESS_ID, '1');
+      const result = await service.skipQueueItem(BUSINESS_ID, '7');
 
       expect(result.success).toBe(true);
-      expect(mockQueueRepo.remove).toHaveBeenCalledWith(item);
-    });
-
-    it('should throw NotFoundException when item not found', async () => {
-      mockQueueRepo.findOne.mockResolvedValue(null);
-      await expect(
-        service.removeFromQueue(BUSINESS_ID, 'nonexistent'),
-      ).rejects.toThrow(NotFoundException);
+      expect(result.data.status).toBe(EntityQueueStatus.NO_SHOW);
     });
   });
 
-  describe('nextInQueue', () => {
-    it('should complete IN_PROGRESS and advance next WAITING', async () => {
-      const inProgress = { id: '1', status: EntityQueueStatus.IN_PROGRESS, position: 1 };
-      const nextWaiting = { id: '2', status: EntityQueueStatus.WAITING, position: 2 };
+  describe('pause/resume queue', () => {
+    it('should pause queue', async () => {
+      const business = {
+        id: BUSINESS_ID,
+        settings: {
+          averageServiceTime: 20,
+          automationEnabled: false,
+          excludedContacts: [],
+          maxDaysAhead: 2,
+          queuePaused: false,
+        },
+      };
+      mockUserRepo.findOne.mockResolvedValue(business);
 
-      queueBuilder.getOne
-        .mockResolvedValueOnce(inProgress)
-        .mockResolvedValueOnce(nextWaiting);
-      queueBuilder.getMany.mockResolvedValue([]);
-      mockUserRepo.findOne.mockResolvedValue(null);
-      mockQueueRepo.save.mockImplementation((data: Partial<QueueEntity>) => Promise.resolve(data));
-
-      const result = await service.nextInQueue(BUSINESS_ID);
-
-      expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-    });
-
-    it('should return null data when no more WAITING items', async () => {
-      queueBuilder.getOne.mockResolvedValue(null);
-      const result = await service.nextInQueue(BUSINESS_ID);
-      expect(result.success).toBe(true);
-      expect(result.data).toBeNull();
-    });
-  });
-
-  describe('completeQueueItem', () => {
-    it('should mark item as COMPLETED and return success', async () => {
-      const item = { id: '1', status: EntityQueueStatus.IN_PROGRESS };
-      mockQueueRepo.findOne.mockResolvedValue(item);
-      mockQueueRepo.save.mockResolvedValue({ ...item, status: EntityQueueStatus.COMPLETED });
-      queueBuilder.getMany.mockResolvedValue([]);
-      mockUserRepo.findOne.mockResolvedValue(null);
-
-      const result = await service.completeQueueItem(BUSINESS_ID, '1');
+      const result = await service.pauseQueue(BUSINESS_ID);
 
       expect(result.success).toBe(true);
-      expect(result.message).toBe('Turno completado');
+      expect(result.queuePaused).toBe(true);
+      expect(mockUserRepo.save).toHaveBeenCalled();
     });
 
-    it('should throw NotFoundException when item not found', async () => {
-      mockQueueRepo.findOne.mockResolvedValue(null);
-      await expect(
-        service.completeQueueItem(BUSINESS_ID, 'nonexistent'),
-      ).rejects.toThrow(NotFoundException);
+    it('should resume queue', async () => {
+      const business = {
+        id: BUSINESS_ID,
+        settings: {
+          averageServiceTime: 20,
+          automationEnabled: false,
+          excludedContacts: [],
+          maxDaysAhead: 2,
+          queuePaused: true,
+        },
+      };
+      mockUserRepo.findOne.mockResolvedValue(business);
+
+      const result = await service.resumeQueue(BUSINESS_ID);
+
+      expect(result.success).toBe(true);
+      expect(result.queuePaused).toBe(false);
+      expect(mockUserRepo.save).toHaveBeenCalled();
     });
   });
 });

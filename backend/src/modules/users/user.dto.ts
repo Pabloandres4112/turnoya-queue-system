@@ -27,6 +27,10 @@ export class UserSettingsDto {
   @IsNumber()
   @IsOptional()
   maxDaysAhead?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  queuePaused?: boolean;
 }
 
 export class CreateUserDto {

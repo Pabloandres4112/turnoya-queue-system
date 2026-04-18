@@ -1,4 +1,4 @@
-import { IsString, IsPhoneNumber, IsNumber, IsBoolean, IsOptional, IsEnum } from 'class-validator';
+import { IsString, IsPhoneNumber, IsNumber, IsBoolean, IsOptional, IsEnum, IsDateString } from 'class-validator';
 
 export enum QueueStatus {
   WAITING = 'waiting',
@@ -44,6 +44,11 @@ export class CreateQueueDto {
   @IsBoolean()
   @IsOptional()
   priority?: boolean;
+
+  /** Fecha del turno (YYYY-MM-DD). Si no se envia, usa la fecha actual. */
+  @IsDateString()
+  @IsOptional()
+  queueDate?: string;
 }
 
 export class UpdateQueueDto {

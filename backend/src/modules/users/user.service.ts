@@ -54,6 +54,7 @@ export class UserService {
         automationEnabled: true,
         excludedContacts: [],
         maxDaysAhead: 7,
+        queuePaused: false,
       },
     });
 
@@ -88,6 +89,7 @@ export class UserService {
           automationEnabled: true,
           excludedContacts: [],
           maxDaysAhead: 7,
+          queuePaused: false,
         }),
         ...updateUserDto.settings,
       };
@@ -113,6 +115,7 @@ export class UserService {
       automationEnabled: user.settings?.automationEnabled ?? true,
       excludedContacts: user.settings?.excludedContacts ?? [],
       maxDaysAhead: user.settings?.maxDaysAhead ?? 7,
+      queuePaused: user.settings?.queuePaused ?? false,
     };
   }
 }
