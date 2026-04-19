@@ -27,6 +27,11 @@ export class QueueController {
     return this.queueService.getQueue(this.getBusinessId(req));
   }
 
+  @Get(':date')
+  async getQueueByDate(@Req() req: AuthRequest, @Param('date') date: string): Promise<any> {
+    return this.queueService.getQueueByDate(this.getBusinessId(req), date);
+  }
+
   @Post()
   async addToQueue(@Req() req: AuthRequest, @Body() createQueueDto: CreateQueueDto): Promise<any> {
     return this.queueService.addToQueue(this.getBusinessId(req), createQueueDto);
@@ -54,5 +59,20 @@ export class QueueController {
   @Post('complete/:id')
   async completeQueueItem(@Req() req: AuthRequest, @Param('id') id: string) {
     return this.queueService.completeQueueItem(this.getBusinessId(req), id);
+  }
+
+  @Post('skip/:id')
+  async skipQueueItem(@Req() req: AuthRequest, @Param('id') id: string) {
+    return this.queueService.skipQueueItem(this.getBusinessId(req), id);
+  }
+
+  @Post('pause')
+  async pauseQueue(@Req() req: AuthRequest) {
+    return this.queueService.pauseQueue(this.getBusinessId(req));
+  }
+
+  @Post('resume')
+  async resumeQueue(@Req() req: AuthRequest) {
+    return this.queueService.resumeQueue(this.getBusinessId(req));
   }
 }

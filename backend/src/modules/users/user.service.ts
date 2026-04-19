@@ -54,6 +54,7 @@ export class UserService {
         automationEnabled: true,
         excludedContacts: [],
         maxDaysAhead: 7,
+        queuePaused: false,
       },
     });
 
@@ -88,6 +89,7 @@ export class UserService {
           automationEnabled: true,
           excludedContacts: [],
           maxDaysAhead: 7,
+          queuePaused: false,
         }),
         ...updateUserDto.settings,
       };
@@ -113,6 +115,109 @@ export class UserService {
       automationEnabled: user.settings?.automationEnabled ?? true,
       excludedContacts: user.settings?.excludedContacts ?? [],
       maxDaysAhead: user.settings?.maxDaysAhead ?? 7,
+      queuePaused: user.settings?.queuePaused ?? false,
+    };
+  }
+
+  /**
+   * Agrega un número telefónico a la lista de contactos excluidos.
+   * Los contactos excluidos NO reciben mensajes automatizados.
+   */
+  async addExcludedContact(userId: string, phoneNumber: string): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${userId} no encontrado`);
+    }
+
+    const currentExcluded = user.settings?.excludedContacts ?? [];
+    
+    // Verificar si ya está en la lista
+    if (currentExcluded.includes(phoneNumber)) {
+      return {
+        success: false,
+        message: 'Este contacto ya está en la lista de exclusión',
+        excludedContacts: currentExcluded,
+      };
+    }
+
+    // Agregar a la lista
+    user.settings = {
+      ...(user.settings ?? {
+        averageServiceTime: 30,
+        automationEnabled: true,
+        excludedContacts: [],
+        maxDaysAhead: 7,
+        queuePaused: false,
+      }),
+      excludedContacts: [...currentExcluded, phoneNumber],
+    };
+
+    await this.userRepository.save(user);
+
+    return {
+      success: true,
+      message: 'Contacto agregado a exclusión',
+      excludedContacts: user.settings.excludedContacts,
+    };
+  }
+
+  /**
+   * Remueve un número telefónico de la lista de contactos excluidos.
+   */
+  async removeExcludedContact(userId: string, phoneNumber: string): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${userId} no encontrado`);
+    }
+
+    const currentExcluded = user.settings?.excludedContacts ?? [];
+    
+    // Verificar si existe en la lista
+    if (!currentExcluded.includes(phoneNumber)) {
+      return {
+        success: false,
+        message: 'Este contacto no está en la lista de exclusión',
+        excludedContacts: currentExcluded,
+      };
+    }
+
+    // Remover de la lista
+    user.settings = {
+      ...(user.settings ?? {
+        averageServiceTime: 30,
+        automationEnabled: true,
+        excludedContacts: [],
+        maxDaysAhead: 7,
+        queuePaused: false,
+      }),
+      excludedContacts: currentExcluded.filter(c => c !== phoneNumber),
+    };
+
+    await this.userRepository.save(user);
+
+    return {
+      success: true,
+      message: 'Contacto removido de exclusión',
+      excludedContacts: user.settings.excludedContacts,
+    };
+  }
+
+  /**
+   * Obtiene la lista completa de contactos excluidos para un usuario.
+   */
+  async getExcludedContacts(userId: string): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${userId} no encontrado`);
+    }
+
+    return {
+      success: true,
+      excludedContacts: user.settings?.excludedContacts ?? [],
     };
   }
 }
+

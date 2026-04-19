@@ -171,9 +171,11 @@ DB_PASSWORD=turnoya_secure_password
 DB_NAME=turnoya_db
 
 # WhatsApp API
-WHATSAPP_API_URL=https://graph.facebook.com/v18.0
-WHATSAPP_API_TOKEN=your_whatsapp_token
-WHATSAPP_BUSINESS_ACCOUNT_ID=your_business_account_id
+WHATSAPP_API_URL=https://graph.facebook.com/v21.0
+WHATSAPP_ACCESS_TOKEN=your_whatsapp_access_token
+WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+WHATSAPP_MAX_RETRIES=2
+WHATSAPP_RETRY_DELAY_MS=1000
 
 # Notificaciones
 NOTIFICATION_SERVICE_KEY=your_firebase_key

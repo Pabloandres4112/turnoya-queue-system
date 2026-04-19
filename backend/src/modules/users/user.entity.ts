@@ -24,6 +24,8 @@ export interface UserSettings {
   excludedContacts: string[];
   /** Maxima anticipacion en dias para crear un turno. */
   maxDaysAhead: number;
+  /** Indica si el negocio tiene pausada la recepcion de nuevos turnos. */
+  queuePaused: boolean;
 }
 
 @Entity('users')

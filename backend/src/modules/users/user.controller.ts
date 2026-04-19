@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Put, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, UseGuards, Delete } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto, AddExcludedContactDto, RemoveExcludedContactDto, ExcludedContactsResponseDto } from './user.dto';
 import { User, CreateUserResponse, UpdateUserResponse, UserSettings } from './user.types';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import { RolesGuard } from '@common/guards/roles.guard';
@@ -42,5 +42,32 @@ export class UserController {
   @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<UpdateUserResponse> {
     return this.userService.updateUser(id, updateUserDto);
+  }
+
+  @Get(':id/excluded-contacts')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
+  async getExcludedContacts(@Param('id') id: string): Promise<any> {
+    return this.userService.getExcludedContacts(id);
+  }
+
+  @Post(':id/excluded-contacts')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
+  async addExcludedContact(
+    @Param('id') id: string,
+    @Body() dto: AddExcludedContactDto,
+  ): Promise<ExcludedContactsResponseDto> {
+    return this.userService.addExcludedContact(id, dto.phoneNumber);
+  }
+
+  @Delete(':id/excluded-contacts/:phoneNumber')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
+  async removeExcludedContact(
+    @Param('id') id: string,
+    @Param('phoneNumber') phoneNumber: string,
+  ): Promise<ExcludedContactsResponseDto> {
+    return this.userService.removeExcludedContact(id, phoneNumber);
   }
 }

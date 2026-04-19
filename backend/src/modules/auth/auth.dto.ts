@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsPhoneNumber, IsString, MinLength } from 'class-validator';
+import { Equals, IsBoolean, IsEmail, IsOptional, IsPhoneNumber, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
   @IsString()
@@ -33,4 +33,20 @@ export class RegisterDto {
   @IsString()
   @MinLength(6)
   password!: string;
+
+  @IsBoolean()
+  @Equals(true, { message: 'Debes aceptar los términos y condiciones' })
+  acceptTerms!: boolean;
+
+  @IsBoolean()
+  @Equals(true, { message: 'Debes aceptar la política de privacidad' })
+  acceptPrivacyPolicy!: boolean;
+
+  @IsOptional()
+  @IsString()
+  termsVersion?: string;
+
+  @IsOptional()
+  @IsString()
+  privacyPolicyVersion?: string;
 }

@@ -23,9 +23,11 @@ export const config = {
 
   // Configuración de WhatsApp Business API
   whatsapp: {
-    apiUrl: process.env.WHATSAPP_API_URL,
-    apiToken: process.env.WHATSAPP_API_TOKEN,
+    apiUrl: process.env.WHATSAPP_API_URL || process.env.WHATSAPP_BASE_URL,
+    apiToken: process.env.WHATSAPP_ACCESS_TOKEN || process.env.WHATSAPP_API_TOKEN,
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
+    maxRetries: parseInt(process.env.WHATSAPP_MAX_RETRIES || '2', 10),
+    retryDelayMs: parseInt(process.env.WHATSAPP_RETRY_DELAY_MS || '1000', 10),
   },
 
   // Configuración de notificaciones
@@ -37,5 +39,11 @@ export const config = {
   jwt: {
     secret: process.env.JWT_SECRET || 'changeme',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  },
+
+  // Versionado legal para trazabilidad de consentimientos
+  legal: {
+    termsVersion: process.env.LEGAL_TERMS_VERSION || 'v1',
+    privacyPolicyVersion: process.env.LEGAL_PRIVACY_POLICY_VERSION || 'v1',
   },
 };
