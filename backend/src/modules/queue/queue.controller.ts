@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req, UnauthorizedException, } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { QueueService } from './queue.service';
 import { CreateQueueDto, UpdateQueueDto } from './queue.dto';
@@ -12,7 +23,7 @@ interface AuthRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @Controller('queue')
 export class QueueController {
-  constructor(private readonly queueService: QueueService) { }
+  constructor(private readonly queueService: QueueService) {}
 
   private getBusinessId(req: AuthRequest): string {
     const businessId = req.user?.id;
@@ -25,6 +36,11 @@ export class QueueController {
   @Get()
   async getQueue(@Req() req: AuthRequest): Promise<any> {
     return this.queueService.getQueue(this.getBusinessId(req));
+  }
+
+  @Get(':date')
+  async getQueueByDate(@Req() req: AuthRequest, @Param('date') date: string): Promise<any> {
+    return this.queueService.getQueueByDate(this.getBusinessId(req), date);
   }
 
   @Post()
@@ -54,5 +70,20 @@ export class QueueController {
   @Post('complete/:id')
   async completeQueueItem(@Req() req: AuthRequest, @Param('id') id: string) {
     return this.queueService.completeQueueItem(this.getBusinessId(req), id);
+  }
+
+  @Post('skip/:id')
+  async skipQueueItem(@Req() req: AuthRequest, @Param('id') id: string) {
+    return this.queueService.skipQueueItem(this.getBusinessId(req), id);
+  }
+
+  @Post('pause')
+  async pauseQueue(@Req() req: AuthRequest) {
+    return this.queueService.pauseQueue(this.getBusinessId(req));
+  }
+
+  @Post('resume')
+  async resumeQueue(@Req() req: AuthRequest) {
+    return this.queueService.resumeQueue(this.getBusinessId(req));
   }
 }

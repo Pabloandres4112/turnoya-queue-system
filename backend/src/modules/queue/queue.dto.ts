@@ -1,4 +1,12 @@
-import { IsString, IsPhoneNumber, IsNumber, IsBoolean, IsOptional, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsPhoneNumber,
+  IsNumber,
+  IsBoolean,
+  IsOptional,
+  IsEnum,
+  IsDateString,
+} from 'class-validator';
 
 export enum QueueStatus {
   WAITING = 'waiting',
@@ -6,8 +14,6 @@ export enum QueueStatus {
   COMPLETED = 'completed',
   NO_SHOW = 'noShow',
 }
-
-
 
 export interface QueueItem {
   id: string;
@@ -44,6 +50,11 @@ export class CreateQueueDto {
   @IsBoolean()
   @IsOptional()
   priority?: boolean;
+
+  /** Fecha del turno (YYYY-MM-DD). Si no se envia, usa la fecha actual. */
+  @IsDateString()
+  @IsOptional()
+  queueDate?: string;
 }
 
 export class UpdateQueueDto {

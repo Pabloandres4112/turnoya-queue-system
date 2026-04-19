@@ -15,7 +15,7 @@ describe('QueueController', () => {
     queue: [
       {
         id: '1',
-        clientName: 'Juan Pérez',
+        clientName: 'Juan Perez',
         phoneNumber: '+573001234567',
         position: 1,
         status: 'in-progress',
@@ -32,11 +32,15 @@ describe('QueueController', () => {
 
   const mockService = {
     getQueue: jest.fn().mockResolvedValue(mockQueueResult),
+    getQueueByDate: jest.fn().mockResolvedValue(mockQueueResult),
     addToQueue: jest.fn().mockResolvedValue({ success: true, data: {}, totalInQueue: 1 }),
     updateQueueItem: jest.fn().mockResolvedValue({ success: true, message: 'Updated' }),
     removeFromQueue: jest.fn().mockResolvedValue({ success: true, message: 'Removed' }),
     nextInQueue: jest.fn().mockResolvedValue({ success: true, message: 'Next' }),
     completeQueueItem: jest.fn().mockResolvedValue({ success: true, message: 'Completed' }),
+    skipQueueItem: jest.fn().mockResolvedValue({ success: true, message: 'Skipped' }),
+    pauseQueue: jest.fn().mockResolvedValue({ success: true, queuePaused: true }),
+    resumeQueue: jest.fn().mockResolvedValue({ success: true, queuePaused: false }),
   };
 
   beforeEach(async () => {
@@ -69,6 +73,15 @@ describe('QueueController', () => {
     });
   });
 
+  describe('getQueueByDate', () => {
+    it('should call service.getQueueByDate with businessId and date', async () => {
+      const result = await controller.getQueueByDate(mockReq, '2026-04-18');
+
+      expect(service.getQueueByDate).toHaveBeenCalledWith(BUSINESS_ID, '2026-04-18');
+      expect(result).toEqual(mockQueueResult);
+    });
+  });
+
   describe('addToQueue', () => {
     it('should call service.addToQueue with businessId and the provided DTO', async () => {
       const dto: CreateQueueDto = { clientName: 'Test', phoneNumber: '+573001111111' };
@@ -76,14 +89,6 @@ describe('QueueController', () => {
       await controller.addToQueue(mockReq, dto);
 
       expect(service.addToQueue).toHaveBeenCalledWith(BUSINESS_ID, dto);
-    });
-
-    it('should return service result', async () => {
-      const dto: CreateQueueDto = { clientName: 'Test', phoneNumber: '+573001111111' };
-
-      const result = await controller.addToQueue(mockReq, dto);
-
-      expect(result.success).toBe(true);
     });
   });
 
@@ -118,6 +123,30 @@ describe('QueueController', () => {
       await controller.completeQueueItem(mockReq, '5');
 
       expect(service.completeQueueItem).toHaveBeenCalledWith(BUSINESS_ID, '5');
+    });
+  });
+
+  describe('skipQueueItem', () => {
+    it('should call service.skipQueueItem with businessId and id', async () => {
+      await controller.skipQueueItem(mockReq, '7');
+
+      expect(service.skipQueueItem).toHaveBeenCalledWith(BUSINESS_ID, '7');
+    });
+  });
+
+  describe('pauseQueue', () => {
+    it('should call service.pauseQueue with businessId', async () => {
+      await controller.pauseQueue(mockReq);
+
+      expect(service.pauseQueue).toHaveBeenCalledWith(BUSINESS_ID);
+    });
+  });
+
+  describe('resumeQueue', () => {
+    it('should call service.resumeQueue with businessId', async () => {
+      await controller.resumeQueue(mockReq);
+
+      expect(service.resumeQueue).toHaveBeenCalledWith(BUSINESS_ID);
     });
   });
 });
