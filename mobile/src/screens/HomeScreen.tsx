@@ -17,6 +17,7 @@ import { useQueue } from '../hooks/useQueue';
 import { useSettings } from '../hooks/useSettings';
 import Card from '../components/Card';
 import LoadingSpinner from '../components/LoadingSpinner';
+import NexturnaLogo from '../components/NexturnaLogo';
 import { COLORS, RADIUS, SHADOW, SPACING, TYPOGRAPHY } from '../constants';
 
 type HomeNavProp = NativeStackNavigationProp<AppStackParamList, 'Home'>;
@@ -63,7 +64,8 @@ const HomeScreen: React.FC = () => {
         }>
         {/* Header */}
         <View style={styles.header}>
-          <View>
+          <NexturnaLogo size={36} mono />
+          <View style={styles.headerText}>
             <Text style={styles.greeting}>Hola,</Text>
             <Text style={styles.businessName} numberOfLines={1}>
               {user?.businessName ?? 'Tu negocio'}
@@ -200,8 +202,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: SPACING.lg,
+  },
+  headerText: {
+    flex: 1,
+    marginLeft: SPACING.sm,
   },
   greeting: {
     ...TYPOGRAPHY.body2,

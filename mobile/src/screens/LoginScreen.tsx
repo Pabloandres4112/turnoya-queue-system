@@ -14,6 +14,7 @@ import { useAuth } from '../hooks/useAuth';
 import { validatePassword, validateRequired } from '../utils/validators';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import NexturnaLogo from '../components/NexturnaLogo';
 import { COLORS, RADIUS, SHADOW, SPACING, TYPOGRAPHY } from '../constants';
 
 type LoginNavProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
@@ -55,10 +56,8 @@ const LoginScreen: React.FC = () => {
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <View style={styles.logoWrapper}>
-            <View style={styles.logoDot} />
-          </View>
-          <Text style={styles.brand}>TurnoYa</Text>
+          <NexturnaLogo size={80} />
+          <Text style={styles.brand}>Nexturna</Text>
           <Text style={styles.tagline}>Gestión de turnos para tu negocio</Text>
         </View>
 
@@ -127,26 +126,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.xl,
   },
-  logoWrapper: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: SPACING.md,
-    ...SHADOW.md,
-  },
-  logoDot: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: COLORS.white,
-    opacity: 0.9,
-  },
   brand: {
     ...TYPOGRAPHY.h1,
     color: COLORS.primary,
+    marginTop: SPACING.md,
     marginBottom: SPACING.xs,
   },
   tagline: {

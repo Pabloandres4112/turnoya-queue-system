@@ -19,6 +19,7 @@ import {
 } from '../utils/validators';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import NexturnaLogo from '../components/NexturnaLogo';
 import { COLORS, RADIUS, SHADOW, SPACING, TYPOGRAPHY } from '../constants';
 
 type RegisterNavProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
@@ -104,7 +105,7 @@ const RegisterScreen: React.FC = () => {
         </View>
 
         <View style={styles.header}>
-          <Text style={styles.brand}>TurnoYa</Text>
+          <NexturnaLogo size={56} showWordmark />
           <Text style={styles.title}>Crear cuenta</Text>
           <Text style={styles.subtitle}>
             Registra tu negocio y comienza a gestionar tus turnos
@@ -212,14 +213,10 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: SPACING.xl,
   },
-  brand: {
-    ...TYPOGRAPHY.h2,
-    color: COLORS.primary,
-    marginBottom: SPACING.xs,
-  },
   title: {
     ...TYPOGRAPHY.h2,
     color: COLORS.textPrimary,
+    marginTop: SPACING.md,
     marginBottom: SPACING.sm,
   },
   subtitle: {
