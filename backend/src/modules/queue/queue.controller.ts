@@ -1,47 +1,89 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Request } from 'express';
 import { QueueService } from './queue.service';
 import { CreateQueueDto, UpdateQueueDto } from './queue.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { UserEntity } from '../users/user.entity';
 
+interface AuthRequest extends Request {
+  user: UserEntity;
+}
+
+@UseGuards(JwtAuthGuard)
 @Controller('queue')
 export class QueueController {
   constructor(private readonly queueService: QueueService) {}
 
-  // 📌 GET: Obtener cola actual CON DATOS FALSOS
+  private getBusinessId(req: AuthRequest): string {
+    const businessId = req.user?.id;
+    if (!businessId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
+    return businessId;
+  }
+
   @Get()
-  async getQueue(): Promise<any> {
-    return this.queueService.getQueue();
+  async getQueue(@Req() req: AuthRequest): Promise<any> {
+    return this.queueService.getQueue(this.getBusinessId(req));
   }
 
-  // 📌 GET especial: Datos MOCK puros (sin lógica)
-  @Get('mock')
-  async getQueueMock(): Promise<any> {
-    return this.queueService.getQueueMock();
+  @Get(':date')
+  async getQueueByDate(@Req() req: AuthRequest, @Param('date') date: string): Promise<any> {
+    return this.queueService.getQueueByDate(this.getBusinessId(req), date);
   }
 
-  // 📌 POST: Agregar cliente a la cola
   @Post()
-  async addToQueue(@Body() createQueueDto: CreateQueueDto): Promise<any> {
-    console.log('📥 POST /queue - Datos recibidos:', createQueueDto);
-    return this.queueService.addToQueue(createQueueDto);
+  async addToQueue(@Req() req: AuthRequest, @Body() createQueueDto: CreateQueueDto): Promise<any> {
+    return this.queueService.addToQueue(this.getBusinessId(req), createQueueDto);
   }
 
   @Put(':id')
-  async updateQueueItem(@Param('id') id: string, @Body() updateQueueDto: UpdateQueueDto) {
-    return this.queueService.updateQueueItem(id, updateQueueDto);
+  async updateQueueItem(
+    @Req() req: AuthRequest,
+    @Param('id') id: string,
+    @Body() updateQueueDto: UpdateQueueDto,
+  ) {
+    return this.queueService.updateQueueItem(this.getBusinessId(req), id, updateQueueDto);
   }
 
   @Delete(':id')
-  async removeFromQueue(@Param('id') id: string) {
-    return this.queueService.removeFromQueue(id);
+  async removeFromQueue(@Req() req: AuthRequest, @Param('id') id: string) {
+    return this.queueService.removeFromQueue(this.getBusinessId(req), id);
   }
 
   @Post('next')
-  async nextInQueue() {
-    return this.queueService.nextInQueue();
+  async nextInQueue(@Req() req: AuthRequest) {
+    return this.queueService.nextInQueue(this.getBusinessId(req));
   }
 
   @Post('complete/:id')
-  async completeQueueItem(@Param('id') id: string) {
-    return this.queueService.completeQueueItem(id);
+  async completeQueueItem(@Req() req: AuthRequest, @Param('id') id: string) {
+    return this.queueService.completeQueueItem(this.getBusinessId(req), id);
+  }
+
+  @Post('skip/:id')
+  async skipQueueItem(@Req() req: AuthRequest, @Param('id') id: string) {
+    return this.queueService.skipQueueItem(this.getBusinessId(req), id);
+  }
+
+  @Post('pause')
+  async pauseQueue(@Req() req: AuthRequest) {
+    return this.queueService.pauseQueue(this.getBusinessId(req));
+  }
+
+  @Post('resume')
+  async resumeQueue(@Req() req: AuthRequest) {
+    return this.queueService.resumeQueue(this.getBusinessId(req));
   }
 }

@@ -11,7 +11,11 @@ import { NotificationService } from './modules/notifications/notif.service';
 import { WhatsAppService } from './services/whatsapp.service';
 import { NotificationCoreService } from './services/notification.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { MessageLogModule } from './modules/message-log/message-log.module';
+import { WebhookModule } from './modules/webhook/webhook.module';
 import { UserEntity } from './modules/users/user.entity';
+import { QueueEntity } from './modules/queue/queue.entity';
+import { MessageLogEntity } from './modules/message-log/message-log.entity';
 import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
@@ -21,6 +25,8 @@ import { RolesGuard } from './common/guards/roles.guard';
       envFilePath: '.env',
     }),
     AuthModule,
+    MessageLogModule,
+    WebhookModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService): Promise<TypeOrmModuleOptions> => ({
@@ -38,7 +44,7 @@ import { RolesGuard } from './common/guards/roles.guard';
         logging: configService.get<string>('NODE_ENV') === 'development',
       }),
     }),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, QueueEntity, MessageLogEntity]),
   ],
   controllers: [QueueController, UserController, NotificationController],
   providers: [

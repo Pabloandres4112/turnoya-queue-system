@@ -1,4 +1,12 @@
-import { IsString, IsPhoneNumber, IsNumber, IsBoolean, IsOptional, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsPhoneNumber,
+  IsNumber,
+  IsBoolean,
+  IsOptional,
+  IsEnum,
+  IsDateString,
+} from 'class-validator';
 
 export enum QueueStatus {
   WAITING = 'waiting',
@@ -7,16 +15,24 @@ export enum QueueStatus {
   NO_SHOW = 'noShow',
 }
 
-export interface MockQueueItem {
+export interface QueueItem {
   id: string;
   clientName: string;
   phoneNumber: string;
   position: number;
-  status: string;
-  estimatedTime: number;
+  status: QueueStatus;
+  /** Tiempo estimado de espera en minutos. */
+  estimatedTimeMinutes: number;
   priority: boolean;
   createdAt: Date;
   queueDate: Date;
+}
+
+export interface GetQueueResponse {
+  queue: QueueItem[];
+  total: number;
+  currentPosition: number;
+  message: string;
 }
 
 export class CreateQueueDto {
@@ -26,13 +42,19 @@ export class CreateQueueDto {
   @IsPhoneNumber()
   phoneNumber!: string;
 
+  /** Tiempo estimado de espera en minutos. Si no se provee, se usa el averageServiceTime del negocio. */
   @IsNumber()
   @IsOptional()
-  estimatedTime?: number;
+  estimatedTimeMinutes?: number;
 
   @IsBoolean()
   @IsOptional()
   priority?: boolean;
+
+  /** Fecha del turno (YYYY-MM-DD). Si no se envia, usa la fecha actual. */
+  @IsDateString()
+  @IsOptional()
+  queueDate?: string;
 }
 
 export class UpdateQueueDto {
@@ -40,9 +62,10 @@ export class UpdateQueueDto {
   @IsOptional()
   status?: QueueStatus;
 
+  /** Tiempo estimado de espera en minutos. */
   @IsNumber()
   @IsOptional()
-  estimatedTime?: number;
+  estimatedTimeMinutes?: number;
 
   @IsNumber()
   @IsOptional()
