@@ -41,7 +41,7 @@ const HomeScreen: React.FC = () => {
   const { settings } = useSettings();
 
   const handleLogout = () => {
-    Alert.alert('Cerrar sesion', 'Seguro que deseas salir?', [
+    Alert.alert('Cerrar sesión', '¿Seguro que deseas salir?', [
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Salir', style: 'destructive', onPress: () => logout() },
     ]);
@@ -176,7 +176,7 @@ const HomeScreen: React.FC = () => {
               <View style={styles.actionIconGear} />
             </View>
             <View>
-              <Text style={styles.actionTitle}>Configuracion</Text>
+              <Text style={styles.actionTitle}>Configuración</Text>
               <Text style={styles.actionSubtitle}>
                 Ajustes de tu negocio
               </Text>

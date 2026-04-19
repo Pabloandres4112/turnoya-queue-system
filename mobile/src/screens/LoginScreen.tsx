@@ -59,11 +59,11 @@ const LoginScreen: React.FC = () => {
             <View style={styles.logoDot} />
           </View>
           <Text style={styles.brand}>TurnoYa</Text>
-          <Text style={styles.tagline}>Gestion de turnos para tu negocio</Text>
+          <Text style={styles.tagline}>Gestión de turnos para tu negocio</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.title}>Iniciar sesion</Text>
+          <Text style={styles.title}>Iniciar sesión</Text>
 
           {error ? (
             <View style={styles.errorBanner}>
@@ -72,7 +72,7 @@ const LoginScreen: React.FC = () => {
           ) : null}
 
           <Input
-            label="Telefono o correo electronico"
+            label="Teléfono o correo electrónico"
             placeholder="Ej: +573001234567"
             value={identifier}
             onChangeText={(v) => { setIdentifier(v); setIdentifierError(null); }}
@@ -83,8 +83,8 @@ const LoginScreen: React.FC = () => {
           />
 
           <Input
-            label="Contrasena"
-            placeholder="Minimo 6 caracteres"
+            label="Contraseña"
+            placeholder="Mínimo 6 caracteres"
             value={password}
             onChangeText={(v) => { setPassword(v); setPasswordError(null); }}
             secureTextEntry

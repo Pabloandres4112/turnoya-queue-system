@@ -139,7 +139,7 @@ const RegisterScreen: React.FC = () => {
           />
 
           <Input
-            label="Correo electronico (opcional)"
+            label="Correo electrónico (opcional)"
             placeholder="correo@ejemplo.com"
             value={email}
             onChangeText={(v) => { setEmail(v); setFieldError('email', null); }}
@@ -150,8 +150,8 @@ const RegisterScreen: React.FC = () => {
           />
 
           <Input
-            label="Contrasena"
-            placeholder="Minimo 6 caracteres"
+            label="Contraseña"
+            placeholder="Mínimo 6 caracteres"
             value={password}
             onChangeText={(v) => { setPassword(v); setFieldError('password', null); }}
             secureTextEntry
@@ -161,8 +161,8 @@ const RegisterScreen: React.FC = () => {
           />
 
           <Input
-            label="Confirmar contrasena"
-            placeholder="Repite tu contrasena"
+            label="Confirmar contraseña"
+            placeholder="Repite tu contraseña"
             value={confirmPassword}
             onChangeText={(v) => { setConfirmPassword(v); setFieldError('confirmPassword', null); }}
             secureTextEntry

@@ -64,7 +64,7 @@ const SettingsScreen: React.FC = () => {
   };
 
   const handleLogout = () => {
-    Alert.alert('Cerrar sesion', 'Seguro que deseas salir?', [
+    Alert.alert('Cerrar sesión', '¿Seguro que deseas salir?', [
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Salir', style: 'destructive', onPress: () => logout() },
     ]);
@@ -83,7 +83,7 @@ const SettingsScreen: React.FC = () => {
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled">
           {/* Business Info */}
-          <Text style={styles.sectionLabel}>Informacion del negocio</Text>
+          <Text style={styles.sectionLabel}>Información del negocio</Text>
           <Card style={styles.card}>
             <View style={styles.infoRow}>
               <Text style={styles.infoKey}>Negocio</Text>
@@ -111,10 +111,10 @@ const SettingsScreen: React.FC = () => {
           </Card>
 
           {/* Queue Settings */}
-          <Text style={styles.sectionLabel}>Configuracion de cola</Text>
+          <Text style={styles.sectionLabel}>Configuración de cola</Text>
           <Card style={styles.card}>
             <Input
-              label="Tiempo promedio de atencion (minutos)"
+              label="Tiempo promedio de atención (minutos)"
               placeholder="30"
               value={avgTime}
               onChangeText={(v) => { setAvgTime(v); setAvgTimeError(null); }}
@@ -122,7 +122,7 @@ const SettingsScreen: React.FC = () => {
               error={avgTimeError}
             />
             <Input
-              label="Dias de anticipacion permitidos"
+              label="Días de anticipación permitidos"
               placeholder="7"
               value={maxDays}
               onChangeText={(v) => { setMaxDays(v); setMaxDaysError(null); }}
@@ -163,7 +163,7 @@ const SettingsScreen: React.FC = () => {
 
           {/* Logout */}
           <Button
-            title="Cerrar sesion"
+            title="Cerrar sesión"
             variant="danger"
             onPress={handleLogout}
             style={styles.logoutBtn}

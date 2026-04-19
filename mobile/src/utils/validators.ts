@@ -5,21 +5,21 @@
 
 export const validateEmail = (value: string): string | null => {
   if (!value.trim()) {
-    return 'El correo electronico es requerido';
+    return 'El correo electrónico es requerido';
   }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(value.trim())) {
-    return 'Ingresa un correo electronico valido';
+    return 'Ingresa un correo electrónico válido';
   }
   return null;
 };
 
 export const validatePassword = (value: string): string | null => {
   if (!value) {
-    return 'La contrasena es requerida';
+    return 'La contraseña es requerida';
   }
   if (value.length < 6) {
-    return 'La contrasena debe tener al menos 6 caracteres';
+    return 'La contraseña debe tener al menos 6 caracteres';
   }
   return null;
 };
@@ -29,22 +29,22 @@ export const validatePasswordConfirm = (
   confirm: string,
 ): string | null => {
   if (!confirm) {
-    return 'Confirma tu contrasena';
+    return 'Confirma tu contraseña';
   }
   if (password !== confirm) {
-    return 'Las contrasenas no coinciden';
+    return 'Las contraseñas no coinciden';
   }
   return null;
 };
 
 export const validatePhoneNumber = (value: string): string | null => {
   if (!value.trim()) {
-    return 'El numero de telefono es requerido';
+    return 'El número de teléfono es requerido';
   }
   // Accept digits and leading +, between 7-15 digits
   const phoneRegex = /^\+?[0-9]{7,15}$/;
   if (!phoneRegex.test(value.replace(/[\s\-()]/g, ''))) {
-    return 'Ingresa un numero de telefono valido (7-15 digitos)';
+    return 'Ingresa un número de teléfono válido (7-15 dígitos)';
   }
   return null;
 };
@@ -81,7 +81,7 @@ export const validatePositiveNumber = (
 ): string | null => {
   const num = typeof value === 'string' ? parseInt(value, 10) : value;
   if (isNaN(num) || num <= 0) {
-    return `${fieldName} debe ser un numero positivo`;
+    return `${fieldName} debe ser un número positivo`;
   }
   return null;
 };

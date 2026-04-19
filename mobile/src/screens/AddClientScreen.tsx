@@ -119,7 +119,7 @@ const AddClientScreen: React.FC = () => {
               <View>
                 <Text style={styles.switchLabel}>Cliente prioritario</Text>
                 <Text style={styles.switchHint}>
-                  Se atendera antes que otros en espera
+                  Se atenderá antes que otros en espera
                 </Text>
               </View>
               <Switch
