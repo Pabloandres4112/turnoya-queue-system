@@ -40,4 +40,10 @@ export const config = {
     secret: process.env.JWT_SECRET || 'changeme',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
+
+  // Versionado legal para trazabilidad de consentimientos
+  legal: {
+    termsVersion: process.env.LEGAL_TERMS_VERSION || 'v1',
+    privacyPolicyVersion: process.env.LEGAL_PRIVACY_POLICY_VERSION || 'v1',
+  },
 };
