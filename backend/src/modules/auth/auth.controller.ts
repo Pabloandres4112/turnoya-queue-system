@@ -7,6 +7,12 @@ interface RequestWithUser {
   user: AuthenticatedUser;
 }
 
+interface RegisterRequest extends RequestWithUser {
+  headers: Record<string, string | string[] | undefined>;
+  ip?: string;
+  socket?: { remoteAddress?: string };
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -18,13 +24,33 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  async register(@Body() dto: RegisterDto, @Req() req: RegisterRequest) {
+    const userAgent = Array.isArray(req.headers['user-agent'])
+      ? req.headers['user-agent'][0]
+      : req.headers['user-agent'];
+
+    const appVersion = Array.isArray(req.headers['x-app-version'])
+      ? req.headers['x-app-version'][0]
+      : req.headers['x-app-version'];
+
+    const ipAddress = req.ip ?? req.socket?.remoteAddress ?? null;
+
+    return this.authService.register(dto, {
+      ipAddress,
+      userAgent: userAgent ?? null,
+      appVersion: appVersion ?? null,
+    });
   }
 
   @Post('login')
   @HttpCode(200)
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Get('me/consents')
+  @UseGuards(JwtAuthGuard)
+  async getMyLegalConsents(@Req() req: RequestWithUser) {
+    return this.authService.getLegalConsentsByUserId(req.user.id);
   }
 }

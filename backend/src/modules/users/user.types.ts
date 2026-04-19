@@ -1,11 +1,14 @@
 import { UserRole } from './user-role.enum';
+import { UserSettings } from './user.entity';
+
+export { UserSettings };
 
 export interface User {
   id: string;
   role: UserRole;
   businessName: string;
   whatsappNumber: string;
-  settings: Record<string, any>;
+  settings: UserSettings | null;
 }
 
 export interface CreateUserResponse {
@@ -17,11 +20,4 @@ export interface CreateUserResponse {
 export interface UpdateUserResponse {
   success: boolean;
   message: string;
-}
-
-export interface UserSettings {
-  averageServiceTime: number;
-  automationEnabled: boolean;
-  excludedContacts: string[];
-  maxDaysAhead: number;
 }

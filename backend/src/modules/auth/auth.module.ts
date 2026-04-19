@@ -7,12 +7,13 @@ import { UserEntity } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
+import { LegalConsentEntity } from './legal-consent.entity';
 import type { StringValue } from 'ms';
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, LegalConsentEntity]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

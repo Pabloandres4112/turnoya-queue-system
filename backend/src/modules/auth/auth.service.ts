@@ -1,11 +1,13 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../users/user.entity';
 import { LoginDto, RegisterDto } from './auth.dto';
 import { UserRole } from '../users/user-role.enum';
+import { LegalConsentEntity } from './legal-consent.entity';
 
 interface JwtPayload {
   sub: string;
@@ -15,15 +17,24 @@ interface JwtPayload {
   businessName: string;
 }
 
+interface LegalEvidenceMetadata {
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  appVersion?: string | null;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
+    @InjectRepository(LegalConsentEntity)
+    private readonly legalConsentRepository: Repository<LegalConsentEntity>,
+    private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto, metadata?: LegalEvidenceMetadata) {
     const existing = await this.usersRepository.findOne({
       where: dto.email
         ? [{ whatsappNumber: dto.whatsappNumber }, { email: dto.email }]
@@ -47,12 +58,38 @@ export class AuthService {
 
     const saved = await this.usersRepository.save(user);
 
+    const termsVersion =
+      dto.termsVersion ?? this.configService.get<string>('LEGAL_TERMS_VERSION') ?? 'v1';
+    const privacyPolicyVersion =
+      dto.privacyPolicyVersion ??
+      this.configService.get<string>('LEGAL_PRIVACY_POLICY_VERSION') ??
+      'v1';
+
+    const legalConsent = this.legalConsentRepository.create({
+      userId: saved.id,
+      acceptedTerms: dto.acceptTerms,
+      acceptedPrivacyPolicy: dto.acceptPrivacyPolicy,
+      termsVersion,
+      privacyPolicyVersion,
+      ipAddress: metadata?.ipAddress ?? null,
+      userAgent: metadata?.userAgent ?? null,
+      appVersion: metadata?.appVersion ?? null,
+    });
+    await this.legalConsentRepository.save(legalConsent);
+
     const accessToken = await this.signToken(saved);
 
     return {
       accessToken,
       user: this.sanitizeUser(saved),
     };
+  }
+
+  async getLegalConsentsByUserId(userId: string) {
+    return this.legalConsentRepository.find({
+      where: { userId },
+      order: { acceptedAt: 'DESC' },
+    });
   }
 
   async login(dto: LoginDto) {
