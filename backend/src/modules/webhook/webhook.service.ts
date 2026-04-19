@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MessageLogService } from '../message-log/message-log.service';
-import { MessageLogEntity, MessageDirection, MessageType, MessageStatus } from '../message-log/message-log.entity';
+import { MessageDirection, MessageType, MessageStatus } from '../message-log/message-log.entity';
 import { CreateMessageLogDto } from '../message-log/message-log.dto';
 import * as crypto from 'crypto';
 
@@ -46,10 +46,7 @@ export class WebhookService {
       }
 
       // Calcular HMAC-SHA256
-      const hmac = crypto
-        .createHmac('sha256', appSecret)
-        .update(bodyString, 'utf-8')
-        .digest('hex');
+      const hmac = crypto.createHmac('sha256', appSecret).update(bodyString, 'utf-8').digest('hex');
 
       // Comparar con constante-time para evitar timing attacks
       return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(hmac));
@@ -63,13 +60,9 @@ export class WebhookService {
    * Procesa un evento de mensaje recibido de Meta.
    * Extrae el texto, número origen, y guarda en MessageLog.
    */
-  async handleMessageEvent(
-    businessId: string,
-    userId: string,
-    messageData: any,
-  ): Promise<void> {
+  async handleMessageEvent(businessId: string, userId: string, messageData: any): Promise<void> {
     try {
-      const { from, id, timestamp, text, type } = messageData;
+      const { from, id, text } = messageData;
 
       if (!from || !id || !text?.body) {
         this.logger.warn('Mensaje incompleto recibido', messageData);
@@ -103,12 +96,9 @@ export class WebhookService {
    * Procesa un evento de estado de mensaje (SENT, DELIVERED, READ, FAILED).
    * Actualiza el log del mensaje con el nuevo estado.
    */
-  async handleStatusEvent(
-    businessId: string,
-    statusData: any,
-  ): Promise<void> {
+  async handleStatusEvent(_businessId: string, statusData: any): Promise<void> {
     try {
-      const { id, status, timestamp, recipient_id } = statusData;
+      const { id, status } = statusData;
 
       if (!id || !status) {
         this.logger.warn('Status event incompleto', statusData);
@@ -139,11 +129,7 @@ export class WebhookService {
   /**
    * Dispatcher principal que ruteael evento a handlers específicos.
    */
-  async dispatchEvent(
-    businessId: string,
-    userId: string,
-    entry: any,
-  ): Promise<void> {
+  async dispatchEvent(businessId: string, userId: string, entry: any): Promise<void> {
     const changes = entry.changes || [];
 
     for (const change of changes) {

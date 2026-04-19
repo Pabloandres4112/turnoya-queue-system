@@ -2,7 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MessageLogEntity, MessageStatus } from './message-log.entity';
-import { CreateMessageLogDto, UpdateMessageLogDto, MessageLogResponseDto, GetMessageLogsQueryDto } from './message-log.dto';
+import {
+  CreateMessageLogDto,
+  UpdateMessageLogDto,
+  MessageLogResponseDto,
+  GetMessageLogsQueryDto,
+} from './message-log.dto';
 
 @Injectable()
 export class MessageLogService {
@@ -43,10 +48,7 @@ export class MessageLogService {
    * Actualiza el estado o messageId de un log existente.
    * Se usa para marcar como DELIVERED cuando Meta confirma entrega.
    */
-  async updateLog(
-    logId: string,
-    dto: UpdateMessageLogDto,
-  ): Promise<MessageLogResponseDto> {
+  async updateLog(logId: string, dto: UpdateMessageLogDto): Promise<MessageLogResponseDto> {
     const log = await this.messageLogRepository.findOne({
       where: { id: logId },
     });
@@ -99,7 +101,7 @@ export class MessageLogService {
     const [logs, total] = await qb.getManyAndCount();
 
     return {
-      logs: logs.map(log => this.entityToDto(log)),
+      logs: logs.map((log) => this.entityToDto(log)),
       total,
     };
   }
@@ -129,7 +131,7 @@ export class MessageLogService {
       order: { createdAt: 'DESC' },
     });
 
-    return logs.map(log => this.entityToDto(log));
+    return logs.map((log) => this.entityToDto(log));
   }
 
   /**
@@ -145,7 +147,7 @@ export class MessageLogService {
       order: { createdAt: 'DESC' },
     });
 
-    return logs.map(log => this.entityToDto(log));
+    return logs.map((log) => this.entityToDto(log));
   }
 
   /**

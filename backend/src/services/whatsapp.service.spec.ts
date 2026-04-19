@@ -23,10 +23,7 @@ describe('WhatsAppService', () => {
     mockConfigService.get.mockImplementation((key: string) => baseConfig[key]);
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        WhatsAppService,
-        { provide: ConfigService, useValue: mockConfigService },
-      ],
+      providers: [WhatsAppService, { provide: ConfigService, useValue: mockConfigService }],
     }).compile();
 
     service = module.get<WhatsAppService>(WhatsAppService);

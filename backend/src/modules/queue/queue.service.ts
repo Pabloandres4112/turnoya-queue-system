@@ -83,7 +83,8 @@ export class QueueService {
       .addOrderBy('q.createdAt', 'ASC')
       .getMany();
 
-    const inProgress = activeItems.find((item) => item.status === EntityQueueStatus.IN_PROGRESS) ?? null;
+    const inProgress =
+      activeItems.find((item) => item.status === EntityQueueStatus.IN_PROGRESS) ?? null;
     const waiting = activeItems
       .filter((item) => item.status === EntityQueueStatus.WAITING)
       .sort((a, b) => {
@@ -126,7 +127,10 @@ export class QueueService {
     }
   }
 
-  private async advanceNextWaiting(businessId: string, queueDate: string): Promise<QueueEntity | null> {
+  private async advanceNextWaiting(
+    businessId: string,
+    queueDate: string,
+  ): Promise<QueueEntity | null> {
     const next = await this.queueRepo
       .createQueryBuilder('q')
       .where('q.businessId = :businessId', { businessId })

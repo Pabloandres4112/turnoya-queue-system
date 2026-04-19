@@ -1,4 +1,12 @@
-import { IsString, IsPhoneNumber, IsNumber, IsBoolean, IsOptional, IsEnum, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsPhoneNumber,
+  IsNumber,
+  IsBoolean,
+  IsOptional,
+  IsEnum,
+  IsDateString,
+} from 'class-validator';
 
 export enum QueueStatus {
   WAITING = 'waiting',
@@ -6,8 +14,6 @@ export enum QueueStatus {
   COMPLETED = 'completed',
   NO_SHOW = 'noShow',
 }
-
-
 
 export interface QueueItem {
   id: string;

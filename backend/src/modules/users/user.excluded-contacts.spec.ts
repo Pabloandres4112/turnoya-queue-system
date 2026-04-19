@@ -3,7 +3,6 @@ import { NotFoundException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserEntity } from './user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserRole } from './user-role.enum';
 
 describe('UserService - Excluded Contacts (Tarea 14)', () => {
   let service: UserService;
@@ -85,9 +84,9 @@ describe('UserService - Excluded Contacts (Tarea 14)', () => {
     it('Debe lanzar NotFoundException si el usuario no existe', async () => {
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.addExcludedContact('invalid-user', '+573105555555')
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.addExcludedContact('invalid-user', '+573105555555')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

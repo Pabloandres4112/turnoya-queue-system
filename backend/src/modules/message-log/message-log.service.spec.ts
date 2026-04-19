@@ -1,7 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { MessageLogService } from './message-log.service';
-import { MessageLogEntity, MessageDirection, MessageType, MessageStatus } from './message-log.entity';
+import {
+  MessageLogEntity,
+  MessageDirection,
+  MessageType,
+  MessageStatus,
+} from './message-log.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('MessageLogService (Tarea 15)', () => {
@@ -67,7 +72,13 @@ describe('MessageLogService (Tarea 15)', () => {
         messageType: MessageType.INCOMING,
       };
 
-      const mockEntity = { id: 'log-789', ...dto, businessId, userId, status: MessageStatus.PENDING };
+      const mockEntity = {
+        id: 'log-789',
+        ...dto,
+        businessId,
+        userId,
+        status: MessageStatus.PENDING,
+      };
 
       mockRepository.create.mockReturnValue(mockEntity);
       mockRepository.save.mockResolvedValue(mockEntity);
@@ -108,7 +119,7 @@ describe('MessageLogService (Tarea 15)', () => {
       mockRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.updateLog('invalid-id', { status: MessageStatus.FAILED })
+        service.updateLog('invalid-id', { status: MessageStatus.FAILED }),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -118,7 +129,12 @@ describe('MessageLogService (Tarea 15)', () => {
       const businessId = 'biz-123';
       const mockLogs = [
         { id: 'log-1', businessId, phoneNumber: '+573105555555', direction: MessageDirection.SENT },
-        { id: 'log-2', businessId, phoneNumber: '+573115555555', direction: MessageDirection.RECEIVED },
+        {
+          id: 'log-2',
+          businessId,
+          phoneNumber: '+573115555555',
+          direction: MessageDirection.RECEIVED,
+        },
       ];
 
       const mockQb = {
@@ -158,10 +174,9 @@ describe('MessageLogService (Tarea 15)', () => {
       const result = await service.getLogsForBusiness(businessId, { phoneNumber });
 
       expect(result.logs).toHaveLength(1);
-      expect(mockQb.andWhere).toHaveBeenCalledWith(
-        'log.phoneNumber = :phoneNumber',
-        { phoneNumber }
-      );
+      expect(mockQb.andWhere).toHaveBeenCalledWith('log.phoneNumber = :phoneNumber', {
+        phoneNumber,
+      });
     });
   });
 
@@ -179,7 +194,7 @@ describe('MessageLogService (Tarea 15)', () => {
 
       expect(result).toHaveLength(2);
       expect(mockRepository.find).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { queueId } })
+        expect.objectContaining({ where: { queueId } }),
       );
     });
   });

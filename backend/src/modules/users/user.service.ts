@@ -131,7 +131,7 @@ export class UserService {
     }
 
     const currentExcluded = user.settings?.excludedContacts ?? [];
-    
+
     // Verificar si ya está en la lista
     if (currentExcluded.includes(phoneNumber)) {
       return {
@@ -173,7 +173,7 @@ export class UserService {
     }
 
     const currentExcluded = user.settings?.excludedContacts ?? [];
-    
+
     // Verificar si existe en la lista
     if (!currentExcluded.includes(phoneNumber)) {
       return {
@@ -192,7 +192,7 @@ export class UserService {
         maxDaysAhead: 7,
         queuePaused: false,
       }),
-      excludedContacts: currentExcluded.filter(c => c !== phoneNumber),
+      excludedContacts: currentExcluded.filter((c) => c !== phoneNumber),
     };
 
     await this.userRepository.save(user);
@@ -220,4 +220,3 @@ export class UserService {
     };
   }
 }
-

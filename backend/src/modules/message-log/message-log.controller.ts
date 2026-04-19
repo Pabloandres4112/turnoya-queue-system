@@ -1,16 +1,11 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { MessageLogService } from './message-log.service';
-import { CreateMessageLogDto, UpdateMessageLogDto, MessageLogResponseDto, GetMessageLogsQueryDto } from './message-log.dto';
+import {
+  CreateMessageLogDto,
+  UpdateMessageLogDto,
+  MessageLogResponseDto,
+  GetMessageLogsQueryDto,
+} from './message-log.dto';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import { RolesGuard } from '@common/guards/roles.guard';
 import { Roles } from '@common/decorators/roles.decorator';
@@ -75,9 +70,7 @@ export class MessageLogController {
   @Get('queue/:queueId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF, UserRole.PLATFORM_ADMIN)
-  async getLogsForQueue(
-    @Param('queueId') queueId: string,
-  ): Promise<MessageLogResponseDto[]> {
+  async getLogsForQueue(@Param('queueId') queueId: string): Promise<MessageLogResponseDto[]> {
     return this.messageLogService.getLogsForQueueItem(queueId);
   }
 

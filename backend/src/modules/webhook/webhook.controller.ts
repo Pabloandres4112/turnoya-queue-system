@@ -10,7 +10,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { WebhookService } from './webhook.service';
-import { WhatsAppWebhookDto, WebhookVerificationDto, WebhookResponseDto } from './webhook.dto';
+import { WhatsAppWebhookDto, WebhookResponseDto } from './webhook.dto';
 
 /**
  * Webhook controller para Meta Cloud API de WhatsApp.

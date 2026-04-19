@@ -112,8 +112,7 @@ export class WhatsAppService {
         }
 
         lastError =
-          (json as MetaErrorResponse).error?.message ||
-          `WhatsApp API error ${response.status}`;
+          (json as MetaErrorResponse).error?.message || `WhatsApp API error ${response.status}`;
 
         const shouldRetry = this.isRetryableStatus(response.status) && attempt < cfg.maxRetries;
         if (!shouldRetry) {

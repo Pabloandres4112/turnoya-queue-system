@@ -1,9 +1,4 @@
-import {
-  IsString,
-  IsEnum,
-  IsOptional,
-  IsUUID,
-} from 'class-validator';
+import { IsString, IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { MessageDirection, MessageType, MessageStatus } from './message-log.entity';
 
 export class CreateMessageLogDto {

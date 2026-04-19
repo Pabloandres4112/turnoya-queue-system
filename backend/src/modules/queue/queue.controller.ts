@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req, UnauthorizedException, } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { QueueService } from './queue.service';
 import { CreateQueueDto, UpdateQueueDto } from './queue.dto';
@@ -12,7 +23,7 @@ interface AuthRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @Controller('queue')
 export class QueueController {
-  constructor(private readonly queueService: QueueService) { }
+  constructor(private readonly queueService: QueueService) {}
 
   private getBusinessId(req: AuthRequest): string {
     const businessId = req.user?.id;

@@ -2,19 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { AuthService } from '../src/modules/auth/auth.service';
 
 /**
  * Tests E2E (End-to-End) para flujos críticos.
  * Requiere DB de prueba configurada.
- * 
+ *
  * Ejecución: npm run test:e2e
  */
 describe('AppModule E2E (Tarea 16)', () => {
   let app: INestApplication;
-  let authService: AuthService;
   let authToken: string;
-  let businessId: string;
   let userId: string;
 
   beforeAll(async () => {
@@ -35,8 +32,6 @@ describe('AppModule E2E (Tarea 16)', () => {
     );
 
     await app.init();
-
-    authService = moduleFixture.get<AuthService>(AuthService);
   });
 
   afterAll(async () => {
@@ -77,25 +72,21 @@ describe('AppModule E2E (Tarea 16)', () => {
     it('POST /auth/login debe autenticar un usuario', async () => {
       if (!authToken) {
         // Crear usuario primero
-        const registerResp = await request(app.getHttpServer())
-          .post('/auth/register')
-          .send({
-            businessName: 'E2E Test',
-            whatsappNumber: '+573115555555',
-            password: 'Test@5678',
-          });
+        const registerResp = await request(app.getHttpServer()).post('/auth/register').send({
+          businessName: 'E2E Test',
+          whatsappNumber: '+573115555555',
+          password: 'Test@5678',
+        });
 
         if (registerResp.body.token) {
           authToken = registerResp.body.token;
         }
       }
 
-      const loginResp = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          whatsappNumber: '+573115555555',
-          password: 'Test@5678',
-        });
+      const loginResp = await request(app.getHttpServer()).post('/auth/login').send({
+        whatsappNumber: '+573115555555',
+        password: 'Test@5678',
+      });
 
       expect(loginResp.body.token || loginResp.status).toBeTruthy();
     });
@@ -310,9 +301,7 @@ describe('AppModule E2E (Tarea 16)', () => {
 
   describe('Permissions - RBAC', () => {
     it('Sin token debe retornar 401 en endpoints protegidos', async () => {
-      await request(app.getHttpServer())
-        .get('/queue')
-        .expect(401);
+      await request(app.getHttpServer()).get('/queue').expect(401);
     });
 
     it('Con token inválido debe retornar 401', async () => {
