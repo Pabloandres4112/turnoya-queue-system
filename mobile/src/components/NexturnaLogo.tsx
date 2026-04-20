@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ViewStyle, TextStyle } from 'react-native';
 
 interface NexturnaLogoProps {
   /** Size of the icon square in dp. Default 64. */
@@ -31,7 +31,6 @@ const NexturnaLogo: React.FC<NexturnaLogoProps> = ({
 
   const stroke = Math.round(size * 0.09);
   const outerR = size / 2;
-  const innerR = outerR - stroke;
 
   // Clock badge
   const clockR = Math.round(size * 0.22);
@@ -49,158 +48,159 @@ const NexturnaLogo: React.FC<NexturnaLogoProps> = ({
   const listBottom = Math.round(size * 0.64);
   const rowH = (listBottom - listTop) / rowCount;
 
+  // Pre-computed dynamic styles (avoids react-native/no-inline-styles)
+  const iconContainerStyle: ViewStyle = { width: size, height: size };
+
+  const ringStyle: ViewStyle = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: size,
+    height: size,
+    borderRadius: outerR,
+    borderWidth: stroke,
+    borderColor: ringColor,
+    backgroundColor: 'transparent',
+  };
+
+  const tailStyle: ViewStyle = {
+    position: 'absolute',
+    bottom: 0,
+    left: Math.round(size * 0.08),
+    width: 0,
+    height: 0,
+    borderRightWidth: Math.round(size * 0.18),
+    borderTopWidth: Math.round(size * 0.2),
+    borderRightColor: 'transparent',
+    borderTopColor: ringColor,
+  };
+
+  const tailCutoutStyle: ViewStyle = {
+    position: 'absolute',
+    bottom: Math.round(size * 0.03),
+    left: Math.round(size * 0.11),
+    width: 0,
+    height: 0,
+    borderRightWidth: Math.round(size * 0.10),
+    borderTopWidth: Math.round(size * 0.12),
+    borderRightColor: 'transparent',
+    borderTopColor: '#ffffff',
+  };
+
+  const rowColors = [
+    mono ? '#3d4a5c' : teal,
+    mono ? '#3d4a5c' : '#13a8d4',
+    mono ? '#3d4a5c' : blue,
+  ];
+
+  const rowStyles = Array.from({ length: rowCount }).map((_, i) => {
+    const rowY = listTop + i * rowH + (rowH - bulletSize) / 2;
+    const barColor = rowColors[i];
+    const barWidth =
+      i === 0
+        ? Math.round((listRight - listLeft - bulletSize - rowGap) * 0.65)
+        : listRight - listLeft - bulletSize - rowGap;
+    const bulletStyle: ViewStyle = {
+      position: 'absolute',
+      top: Math.round(rowY),
+      left: listLeft,
+      width: bulletSize,
+      height: bulletSize,
+      borderRadius: 1,
+      backgroundColor: barColor,
+    };
+    const barStyle: ViewStyle = {
+      position: 'absolute',
+      top: Math.round(rowY),
+      left: listLeft + bulletSize + rowGap,
+      width: barWidth,
+      height: bulletSize,
+      borderRadius: 1,
+      backgroundColor: barColor,
+    };
+    return { bulletStyle, barStyle };
+  });
+
+  const clockOuterStyle: ViewStyle = {
+    position: 'absolute',
+    top: clockCy - clockR,
+    left: clockCx - clockR,
+    width: clockR * 2,
+    height: clockR * 2,
+    borderRadius: clockR,
+    backgroundColor: teal,
+  };
+
+  const clockFaceStyle: ViewStyle = {
+    position: 'absolute',
+    top: clockCy - clockR + clockStroke,
+    left: clockCx - clockR + clockStroke,
+    width: (clockR - clockStroke) * 2,
+    height: (clockR - clockStroke) * 2,
+    borderRadius: clockR - clockStroke,
+    backgroundColor: '#ffffff',
+  };
+
+  const clockHourStyle: ViewStyle = {
+    position: 'absolute',
+    top: clockCy - Math.round((clockR - clockStroke) * 0.6),
+    left: clockCx - 1,
+    width: 2,
+    height: Math.round((clockR - clockStroke) * 0.6),
+    backgroundColor: teal,
+  };
+
+  const clockMinuteStyle: ViewStyle = {
+    position: 'absolute',
+    top: clockCy - 1,
+    left: clockCx,
+    width: Math.round((clockR - clockStroke) * 0.6),
+    height: 2,
+    backgroundColor: teal,
+  };
+
+  const wordmarkDynamicStyle: TextStyle = {
+    fontSize: Math.round(size * 0.45),
+    color: mono ? '#1e293b' : '#1e3a8a',
+    marginLeft: Math.round(size * 0.18),
+  };
+
   return (
     <View style={[styles.root, showWordmark && styles.rootRow]}>
       {/* Icon container */}
-      <View style={{ width: size, height: size }}>
+      <View style={iconContainerStyle}>
         {/* Outer ring (speech bubble body) */}
-        <View
-          style={[
-            styles.ring,
-            {
-              width: size,
-              height: size,
-              borderRadius: outerR,
-              borderWidth: stroke,
-              borderColor: ringColor,
-              backgroundColor: 'transparent',
-            },
-          ]}
-        />
+        <View style={ringStyle} />
 
         {/* Speech bubble tail (triangle bottom-left) */}
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: Math.round(size * 0.08),
-            width: 0,
-            height: 0,
-            borderRightWidth: Math.round(size * 0.18),
-            borderTopWidth: Math.round(size * 0.2),
-            borderRightColor: 'transparent',
-            borderTopColor: ringColor,
-          }}
-        />
+        <View style={tailStyle} />
         {/* Tail inner cutout to maintain ring look */}
-        <View
-          style={{
-            position: 'absolute',
-            bottom: Math.round(size * 0.03),
-            left: Math.round(size * 0.11),
-            width: 0,
-            height: 0,
-            borderRightWidth: Math.round(size * 0.10),
-            borderTopWidth: Math.round(size * 0.12),
-            borderRightColor: 'transparent',
-            borderTopColor: '#ffffff',
-          }}
-        />
+        <View style={tailCutoutStyle} />
 
         {/* List rows */}
-        {Array.from({ length: rowCount }).map((_, i) => {
-          const rowY = listTop + i * rowH + (rowH - bulletSize) / 2;
-          const barColor = mono
-            ? '#3d4a5c'
-            : i === 0
-            ? teal
-            : i === 1
-            ? '#13a8d4'
-            : blue;
-          const barWidth =
-            i === 0
-              ? Math.round((listRight - listLeft - bulletSize - rowGap) * 0.65)
-              : listRight - listLeft - bulletSize - rowGap;
-          return (
-            <React.Fragment key={i}>
-              {/* Bullet square */}
-              <View
-                style={{
-                  position: 'absolute',
-                  top: Math.round(rowY),
-                  left: listLeft,
-                  width: bulletSize,
-                  height: bulletSize,
-                  borderRadius: 1,
-                  backgroundColor: barColor,
-                }}
-              />
-              {/* Text bar */}
-              <View
-                style={{
-                  position: 'absolute',
-                  top: Math.round(rowY),
-                  left: listLeft + bulletSize + rowGap,
-                  width: barWidth,
-                  height: bulletSize,
-                  borderRadius: 1,
-                  backgroundColor: barColor,
-                }}
-              />
-            </React.Fragment>
-          );
-        })}
+        {rowStyles.map(({ bulletStyle, barStyle }, i) => (
+          <React.Fragment key={i}>
+            {/* Bullet square */}
+            <View style={bulletStyle} />
+            {/* Text bar */}
+            <View style={barStyle} />
+          </React.Fragment>
+        ))}
 
         {/* Clock badge */}
         {/* Outer circle */}
-        <View
-          style={{
-            position: 'absolute',
-            top: clockCy - clockR,
-            left: clockCx - clockR,
-            width: clockR * 2,
-            height: clockR * 2,
-            borderRadius: clockR,
-            backgroundColor: teal,
-          }}
-        />
+        <View style={clockOuterStyle} />
         {/* Clock face */}
-        <View
-          style={{
-            position: 'absolute',
-            top: clockCy - clockR + clockStroke,
-            left: clockCx - clockR + clockStroke,
-            width: (clockR - clockStroke) * 2,
-            height: (clockR - clockStroke) * 2,
-            borderRadius: clockR - clockStroke,
-            backgroundColor: '#ffffff',
-          }}
-        />
+        <View style={clockFaceStyle} />
         {/* Clock hour hand (up) */}
-        <View
-          style={{
-            position: 'absolute',
-            top: clockCy - Math.round((clockR - clockStroke) * 0.6),
-            left: clockCx - 1,
-            width: 2,
-            height: Math.round((clockR - clockStroke) * 0.6),
-            backgroundColor: teal,
-          }}
-        />
+        <View style={clockHourStyle} />
         {/* Clock minute hand (right) */}
-        <View
-          style={{
-            position: 'absolute',
-            top: clockCy - 1,
-            left: clockCx,
-            width: Math.round((clockR - clockStroke) * 0.6),
-            height: 2,
-            backgroundColor: teal,
-          }}
-        />
+        <View style={clockMinuteStyle} />
       </View>
 
       {/* Wordmark */}
       {showWordmark && (
-        <Text
-          style={[
-            styles.wordmark,
-            {
-              fontSize: Math.round(size * 0.45),
-              color: mono ? '#1e293b' : '#1e3a8a',
-              marginLeft: Math.round(size * 0.18),
-            },
-          ]}>
+        <Text style={[styles.wordmark, wordmarkDynamicStyle]}>
           Nexturna
         </Text>
       )}
@@ -216,11 +216,6 @@ const styles = StyleSheet.create({
   rootRow: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  ring: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
   },
   wordmark: {
     fontWeight: '700',
