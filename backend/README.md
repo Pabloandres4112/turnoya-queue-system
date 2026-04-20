@@ -126,18 +126,18 @@ docker-compose -f docker-compose.dev.yml up -d
 ```
 
 Esto levanta:
-- Backend en `http://localhost:3000`
-- PostgreSQL en `localhost:5432`
-- pgAdmin en `http://localhost:5050`
+- Backend en `http://localhost:3001`
+- PostgreSQL en `localhost:5433`
+- pgAdmin en `http://localhost:5051`
 
 ### 🔄 Actualizar después de cambios en código TypeScript:
 
 ```bash
 # Restart rápido (para cambios en .ts)
-docker-compose -f docker-compose.dev.yml restart turnoya-backend-dev
+docker-compose -f docker-compose.dev.yml restart backend-dev
 
 # Ver logs en tiempo real
-docker logs -f turnoya-backend-dev
+docker-compose -f docker-compose.dev.yml logs -f backend-dev
 ```
 
 ### 🔄 Actualizar después de cambios en package.json:
@@ -211,10 +211,10 @@ docker ps
 ### Ver logs:
 ```bash
 # Backend
-docker logs -f turnoya-backend-dev
+docker-compose -f docker-compose.dev.yml logs -f backend-dev
 
 # PostgreSQL
-docker logs -f turnoya-postgres-dev
+docker-compose -f docker-compose.dev.yml logs -f postgres
 
 # Todos
 docker-compose -f docker-compose.dev.yml logs -f
@@ -232,17 +232,17 @@ docker-compose -f docker-compose.dev.yml up -d --build
 ### Acceder a contenedor:
 ```bash
 # Backend
-docker exec -it turnoya-backend-dev sh
+docker-compose -f docker-compose.dev.yml exec backend-dev sh
 
 # PostgreSQL
-docker exec -it turnoya-postgres-dev psql -U turnoya -d turnoya_db
+docker-compose -f docker-compose.dev.yml exec postgres psql -U turnoya -d turnoya_db
 ```
 
 ---
 
 ## 🔐 Acceso a pgAdmin
 
-- **URL:** `http://localhost:5050`
+- **URL:** `http://localhost:5051`
 - **Email:** `admin@turnoya.com`
 - **Password:** `admin`
 

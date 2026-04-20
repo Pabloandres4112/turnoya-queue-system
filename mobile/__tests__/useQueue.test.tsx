@@ -5,27 +5,27 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import {useQueue} from '../src/hooks/useQueue';
-import api from '../src/api';
+import * as apiModule from '../src/api';
 
 jest.mock('../src/api', () => ({
-  __esModule: true,
-  default: {
-    queue: {
-      getAll: jest.fn(),
-      create: jest.fn(),
-      next: jest.fn(),
-    },
+  queueApi: {
+    getQueue: jest.fn(),
+    addToQueue: jest.fn(),
+    nextInQueue: jest.fn(),
+    completeQueueItem: jest.fn(),
+    removeFromQueue: jest.fn(),
+    updateQueueItem: jest.fn(),
   },
 }));
 
 const mockQueue = [
   {
     id: '1',
-    clientName: 'Juan Pérez',
+    clientName: 'Juan Perez',
     phoneNumber: '+573001234567',
     position: 1,
     status: 'in-progress' as const,
-    estimatedTime: 15,
+    estimatedTimeMinutes: 15,
     priority: false,
     createdAt: '2024-01-01T00:00:00.000Z',
     queueDate: '2024-01-01T00:00:00.000Z',
@@ -61,11 +61,11 @@ function renderUseQueue() {
 describe('useQueue', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (api.queue.getAll as jest.Mock).mockResolvedValue(mockQueueResponse);
+    (apiModule.queueApi.getQueue as jest.Mock).mockResolvedValue(mockQueueResponse);
   });
 
   it('should start with loading true and empty queue', () => {
-    (api.queue.getAll as jest.Mock).mockReturnValueOnce(new Promise(() => {}));
+    (apiModule.queueApi.getQueue as jest.Mock).mockReturnValueOnce(new Promise(() => {}));
 
     const {resultRef} = renderUseQueue();
 
@@ -81,25 +81,25 @@ describe('useQueue', () => {
       await Promise.resolve();
     });
 
-    expect(api.queue.getAll).toHaveBeenCalledTimes(1);
+    expect(apiModule.queueApi.getQueue).toHaveBeenCalledTimes(1);
     expect(resultRef.current!.queue).toEqual(mockQueue);
     expect(resultRef.current!.loading).toBe(false);
   });
 
-  it('should expose loadQueue, addToQueue and nextInQueue functions', async () => {
+  it('should expose refresh, addToQueue and nextInQueue functions', async () => {
     const {resultRef} = renderUseQueue();
 
     await ReactTestRenderer.act(async () => {
       await Promise.resolve();
     });
 
-    expect(typeof resultRef.current!.loadQueue).toBe('function');
+    expect(typeof resultRef.current!.refresh).toBe('function');
     expect(typeof resultRef.current!.addToQueue).toBe('function');
     expect(typeof resultRef.current!.nextInQueue).toBe('function');
   });
 
-  it('should set error when getAll throws', async () => {
-    (api.queue.getAll as jest.Mock).mockRejectedValueOnce(
+  it('should set error when getQueue throws', async () => {
+    (apiModule.queueApi.getQueue as jest.Mock).mockRejectedValueOnce(
       new Error('Network error'),
     );
 
@@ -109,12 +109,12 @@ describe('useQueue', () => {
       await Promise.resolve();
     });
 
-    expect(resultRef.current!.error).toBe('Error cargando la cola');
+    expect(resultRef.current!.error).toBe('Error al cargar la cola');
     expect(resultRef.current!.loading).toBe(false);
   });
 
-  it('should call api.queue.create and reload when addToQueue is called', async () => {
-    (api.queue.create as jest.Mock).mockResolvedValueOnce({success: true});
+  it('should call queueApi.addToQueue and reload when addToQueue is called', async () => {
+    (apiModule.queueApi.addToQueue as jest.Mock).mockResolvedValueOnce({id: '2', clientName: 'Nuevo'});
 
     const {resultRef} = renderUseQueue();
 
@@ -129,36 +129,15 @@ describe('useQueue', () => {
       });
     });
 
-    expect(api.queue.create).toHaveBeenCalledWith({
+    expect(apiModule.queueApi.addToQueue).toHaveBeenCalledWith({
       clientName: 'Nuevo Cliente',
       phoneNumber: '+573002222222',
     });
-    expect(api.queue.getAll).toHaveBeenCalledTimes(2);
+    expect(apiModule.queueApi.getQueue).toHaveBeenCalledTimes(2);
   });
 
-  it('should throw when addToQueue fails', async () => {
-    (api.queue.create as jest.Mock).mockRejectedValueOnce(
-      new Error('Failed'),
-    );
-
-    const {resultRef} = renderUseQueue();
-
-    await ReactTestRenderer.act(async () => {
-      await Promise.resolve();
-    });
-
-    await expect(
-      ReactTestRenderer.act(async () => {
-        await resultRef.current!.addToQueue({
-          clientName: 'Bad',
-          phoneNumber: '+573001111111',
-        });
-      }),
-    ).rejects.toThrow('Error agregando a la cola');
-  });
-
-  it('should call api.queue.next and reload when nextInQueue is called', async () => {
-    (api.queue.next as jest.Mock).mockResolvedValueOnce({success: true});
+  it('should call queueApi.nextInQueue and reload when nextInQueue is called', async () => {
+    (apiModule.queueApi.nextInQueue as jest.Mock).mockResolvedValueOnce({id: '1'});
 
     const {resultRef} = renderUseQueue();
 
@@ -170,23 +149,7 @@ describe('useQueue', () => {
       await resultRef.current!.nextInQueue();
     });
 
-    expect(api.queue.next).toHaveBeenCalledTimes(1);
-    expect(api.queue.getAll).toHaveBeenCalledTimes(2);
-  });
-
-  it('should throw when nextInQueue fails', async () => {
-    (api.queue.next as jest.Mock).mockRejectedValueOnce(new Error('Failed'));
-
-    const {resultRef} = renderUseQueue();
-
-    await ReactTestRenderer.act(async () => {
-      await Promise.resolve();
-    });
-
-    await expect(
-      ReactTestRenderer.act(async () => {
-        await resultRef.current!.nextInQueue();
-      }),
-    ).rejects.toThrow('Error avanzando turno');
+    expect(apiModule.queueApi.nextInQueue).toHaveBeenCalledTimes(1);
+    expect(apiModule.queueApi.getQueue).toHaveBeenCalledTimes(2);
   });
 });

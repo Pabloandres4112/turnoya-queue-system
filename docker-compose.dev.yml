@@ -1,13 +1,14 @@
 # Docker Compose para desarrollo
+name: turnoya-dev
+
 services:
   # Backend en modo desarrollo
   backend-dev:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
-    container_name: turnoya-backend-dev
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - NODE_ENV=development
       - PORT=3000
@@ -17,12 +18,14 @@ services:
       - DB_PASSWORD=turnoya_password
       - DB_NAME=turnoya_db
     env_file:
-      - ./backend/.env
+      - path: ./backend/.env
+        required: false
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - turnoya-network
+    restart: on-failure
     volumes:
       - ./backend/src:/app/src
       - ./backend/package.json:/app/package.json
@@ -32,9 +35,8 @@ services:
   # Base de datos PostgreSQL
   postgres:
     image: postgres:15-alpine
-    container_name: turnoya-postgres-dev
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_USER=turnoya
       - POSTGRES_PASSWORD=turnoya_password
@@ -45,16 +47,16 @@ services:
       - turnoya-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U turnoya -d turnoya_db"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
 
   # pgAdmin
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: turnoya-pgadmin-dev
     ports:
-      - "5050:80"
+      - "5051:80"
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@turnoya.com
       - PGADMIN_DEFAULT_PASSWORD=admin
@@ -69,6 +71,7 @@ services:
 networks:
   turnoya-network:
     driver: bridge
+    name: turnoya-network
 
 volumes:
   postgres-dev-data:

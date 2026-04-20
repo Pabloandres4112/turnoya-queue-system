@@ -17,7 +17,8 @@ services:
       - DB_PASSWORD=turnoya_password
       - DB_NAME=turnoya_db
     env_file:
-      - ./backend/.env
+      - path: ./backend/.env
+        required: false
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,9 +45,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U turnoya -d turnoya_db"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
 
   # pgAdmin (opcional - para administración de la BD)
   pgadmin:
@@ -69,6 +71,7 @@ services:
 networks:
   turnoya-network:
     driver: bridge
+    name: turnoya-network
 
 volumes:
   postgres-data:
