@@ -253,6 +253,19 @@ docker-compose ps
 docker-compose restart postgres
 ```
 
+### Conflicto de puertos entre Docker Prod y Docker Dev
+```bash
+# Producción usa:
+# Backend  localhost:3000
+# Postgres localhost:5432
+# pgAdmin  localhost:5050
+
+# Desarrollo en Docker usa:
+# Backend  localhost:3001
+# Postgres localhost:5433
+# pgAdmin  localhost:5051
+```
+
 ##  Screenshots
 
 - **Home Screen**: Dashboard con estadísticas del día
