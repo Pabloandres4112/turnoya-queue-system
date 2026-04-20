@@ -1,4 +1,4 @@
-export const API_URL = 'http://10.0.2.2:3000/api/v1'; // Android Emulator
+export const API_URL = 'http://192.168.100.6:3000/api/v1'; // Android Emulator
 
 export const COLORS = {
   primary: '#2563eb',
