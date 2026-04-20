@@ -242,7 +242,6 @@ docker-compose -f docker-compose.dev.yml exec postgres psql -U turnoya -d turnoy
 
 ## 🔐 Acceso a pgAdmin
 
-- **URL:** `http://localhost:5050`
 - **URL:** `http://localhost:5051`
 - **Email:** `admin@turnoya.com`
 - **Password:** `admin`
