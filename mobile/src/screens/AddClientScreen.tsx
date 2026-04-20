@@ -66,8 +66,9 @@ const AddClientScreen: React.FC = () => {
         { text: 'Agregar otro', onPress: resetForm },
         { text: 'Ver cola', onPress: () => navigation.goBack() },
       ]);
-    } catch {
-      Alert.alert('Error', 'No se pudo agregar el cliente. Intenta de nuevo.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo agregar el cliente.';
+      Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }

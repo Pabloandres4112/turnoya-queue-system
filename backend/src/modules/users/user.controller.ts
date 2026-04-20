@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Put, Body, Param, UseGuards, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  Param,
+  ParseUUIDPipe,
+  UseGuards,
+  Delete,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import {
   CreateUserDto,
@@ -19,14 +29,16 @@ export class UserController {
   @Get(':id/settings')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
-  async getUserSettings(@Param('id') id: string): Promise<UserSettings> {
+  async getUserSettings(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): Promise<UserSettings> {
     return this.userService.getUserSettings(id);
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
-  async getUser(@Param('id') id: string): Promise<User> {
+  async getUser(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): Promise<User> {
     return this.userService.getUser(id);
   }
 
@@ -46,7 +58,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
   async updateUser(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UpdateUserResponse> {
     return this.userService.updateUser(id, updateUserDto);
@@ -56,16 +68,16 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
   async getExcludedContacts(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<{ success: boolean; excludedContacts: string[] }> {
     return this.userService.getExcludedContacts(id);
   }
 
   @Post(':id/excluded-contacts')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
+  @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
   async addExcludedContact(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: AddExcludedContactDto,
   ): Promise<ExcludedContactsResponseDto> {
     return this.userService.addExcludedContact(id, dto.phoneNumber);
@@ -73,9 +85,9 @@ export class UserController {
 
   @Delete(':id/excluded-contacts/:phoneNumber')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
+  @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
   async removeExcludedContact(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Param('phoneNumber') phoneNumber: string,
   ): Promise<ExcludedContactsResponseDto> {
     return this.userService.removeExcludedContact(id, phoneNumber);

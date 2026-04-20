@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { QueueItem, QueueResponse, CreateQueueDto } from '../types';
-import { queueApi } from '../api';
+import { getApiErrorMessage, queueApi } from '../api';
+
+const parseApiError = (error: unknown, fallback: string): string => {
+  if (typeof getApiErrorMessage === 'function') {
+    return getApiErrorMessage(error, fallback);
+  }
+  return fallback;
+};
 
 export const useQueue = () => {
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -15,8 +22,8 @@ export const useQueue = () => {
       const response: QueueResponse = await queueApi.getQueue();
       setQueue(response.queue ?? []);
       setTotal(response.total ?? 0);
-    } catch {
-      setError('Error al cargar la cola');
+    } catch (error) {
+      setError(parseApiError(error, 'Error al cargar la cola'));
     } finally {
       setLoading(false);
     }
@@ -24,30 +31,46 @@ export const useQueue = () => {
 
   const addToQueue = useCallback(
     async (data: CreateQueueDto) => {
-      const item = await queueApi.addToQueue(data);
-      await loadQueue();
-      return item;
+      try {
+        const response = await queueApi.addToQueue(data);
+        await loadQueue();
+        return response;
+      } catch (error) {
+        throw new Error(parseApiError(error, 'No se pudo agregar el cliente'));
+      }
     },
     [loadQueue],
   );
 
   const nextInQueue = useCallback(async () => {
-    await queueApi.nextInQueue();
-    await loadQueue();
+    try {
+      await queueApi.nextInQueue();
+      await loadQueue();
+    } catch (error) {
+      throw new Error(parseApiError(error, 'No se pudo avanzar al siguiente turno'));
+    }
   }, [loadQueue]);
 
   const completeItem = useCallback(
     async (id: string) => {
-      await queueApi.completeQueueItem(id);
-      await loadQueue();
+      try {
+        await queueApi.completeQueueItem(id);
+        await loadQueue();
+      } catch (error) {
+        throw new Error(parseApiError(error, 'No se pudo completar el turno'));
+      }
     },
     [loadQueue],
   );
 
   const removeItem = useCallback(
     async (id: string) => {
-      await queueApi.removeFromQueue(id);
-      await loadQueue();
+      try {
+        await queueApi.removeFromQueue(id);
+        await loadQueue();
+      } catch (error) {
+        throw new Error(parseApiError(error, 'No se pudo eliminar el turno'));
+      }
     },
     [loadQueue],
   );

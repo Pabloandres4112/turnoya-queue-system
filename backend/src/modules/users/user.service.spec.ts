@@ -20,6 +20,7 @@ describe('UserService', () => {
           automationEnabled: true,
           excludedContacts: [],
           maxDaysAhead: 7,
+          queuePaused: false,
         },
       },
     ]),
@@ -34,6 +35,7 @@ describe('UserService', () => {
         automationEnabled: true,
         excludedContacts: [],
         maxDaysAhead: 7,
+        queuePaused: false,
       },
     })),
     create: jest.fn().mockImplementation((dto) => dto),
@@ -143,6 +145,7 @@ describe('UserService', () => {
       expect(result).toHaveProperty('automationEnabled');
       expect(result).toHaveProperty('excludedContacts');
       expect(result).toHaveProperty('maxDaysAhead');
+      expect(result).toHaveProperty('queuePaused');
     });
 
     it('should return numeric averageServiceTime', async () => {
@@ -167,6 +170,27 @@ describe('UserService', () => {
       const result = await service.getUserSettings('user-123');
 
       expect(typeof result.maxDaysAhead).toBe('number');
+    });
+
+    it('should sanitize invalid queuePaused values from persisted settings', async () => {
+      mockRepository.findOne.mockResolvedValueOnce({
+        id: 'user-123',
+        role: UserRole.PLATFORM_ADMIN,
+        businessName: 'Negocio roto',
+        whatsappNumber: '+573001234567',
+        email: 'test@example.com',
+        settings: {
+          averageServiceTime: 30,
+          automationEnabled: true,
+          excludedContacts: [],
+          maxDaysAhead: 7,
+          queuePaused: 7,
+        },
+      });
+
+      const result = await service.getUserSettings('user-123');
+
+      expect(result.queuePaused).toBe(false);
     });
   });
 });

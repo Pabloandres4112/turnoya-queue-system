@@ -8,11 +8,50 @@ import {
   QueueResponse,
   QueueItem,
   CreateQueueDto,
+  QueueMutationResponse,
   UpdateQueueDto,
   AuthUser,
   UserSettings,
   UpdateUserDto,
 } from '../types';
+
+interface ApiErrorPayload {
+  message?: string | string[];
+  error?: string;
+  details?: Array<{ message?: string }>;
+}
+
+export const getApiErrorMessage = (
+  error: unknown,
+  fallback = 'Ocurrió un error inesperado',
+): string => {
+  if (!axios.isAxiosError(error)) {
+    return fallback;
+  }
+
+  const payload = error.response?.data as ApiErrorPayload | undefined;
+
+  if (Array.isArray(payload?.message) && payload.message.length > 0) {
+    return payload.message[0];
+  }
+
+  if (typeof payload?.message === 'string' && payload.message.trim().length > 0) {
+    return payload.message;
+  }
+
+  if (Array.isArray(payload?.details) && payload.details.length > 0) {
+    const firstDetail = payload.details[0]?.message;
+    if (typeof firstDetail === 'string' && firstDetail.trim().length > 0) {
+      return firstDetail;
+    }
+  }
+
+  if (typeof payload?.error === 'string' && payload.error.trim().length > 0) {
+    return payload.error;
+  }
+
+  return fallback;
+};
 
 // ─── Axios Instance ───────────────────────────────────────────────────────────
 
@@ -77,13 +116,13 @@ export const queueApi = {
     return data;
   },
 
-  addToQueue: async (dto: CreateQueueDto): Promise<QueueItem> => {
-    const { data } = await apiClient.post<QueueItem>('/queue', dto);
+  addToQueue: async (dto: CreateQueueDto): Promise<QueueMutationResponse> => {
+    const { data } = await apiClient.post<QueueMutationResponse>('/queue', dto);
     return data;
   },
 
-  updateQueueItem: async (id: string, dto: UpdateQueueDto): Promise<QueueItem> => {
-    const { data } = await apiClient.put<QueueItem>(`/queue/${id}`, dto);
+  updateQueueItem: async (id: string, dto: UpdateQueueDto): Promise<QueueMutationResponse> => {
+    const { data } = await apiClient.put<QueueMutationResponse>(`/queue/${id}`, dto);
     return data;
   },
 
@@ -91,13 +130,13 @@ export const queueApi = {
     await apiClient.delete(`/queue/${id}`);
   },
 
-  nextInQueue: async (): Promise<QueueItem> => {
-    const { data } = await apiClient.post<QueueItem>('/queue/next');
+  nextInQueue: async (): Promise<QueueMutationResponse> => {
+    const { data } = await apiClient.post<QueueMutationResponse>('/queue/next');
     return data;
   },
 
-  completeQueueItem: async (id: string): Promise<QueueItem> => {
-    const { data } = await apiClient.post<QueueItem>(`/queue/complete/${id}`);
+  completeQueueItem: async (id: string): Promise<QueueMutationResponse> => {
+    const { data } = await apiClient.post<QueueMutationResponse>(`/queue/complete/${id}`);
     return data;
   },
 };

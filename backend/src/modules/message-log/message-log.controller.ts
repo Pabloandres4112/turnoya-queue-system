@@ -56,7 +56,7 @@ export class MessageLogController {
    */
   @Get('phone/:phoneNumber')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
+  @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
   async getLogsForPhone(
     @Request() req: any,
     @Param('phoneNumber') phoneNumber: string,
@@ -97,7 +97,7 @@ export class MessageLogController {
    */
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
+  @Roles(UserRole.PLATFORM_ADMIN, UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
   async createLog(
     @Request() req: any,
     @Body() dto: CreateMessageLogDto,

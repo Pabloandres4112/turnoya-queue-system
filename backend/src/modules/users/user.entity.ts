@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { UserRole } from './user-role.enum';
 import { WhatsAppContactEntity } from '../whatsapp-contacts/whatsapp-contact.entity';
@@ -29,6 +30,10 @@ export interface UserSettings {
 }
 
 @Entity('users')
+@Index('idx_single_platform_admin', ['role'], {
+  unique: true,
+  where: `role = 'platform_admin'`,
+})
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

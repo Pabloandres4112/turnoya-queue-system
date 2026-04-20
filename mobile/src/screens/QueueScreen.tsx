@@ -50,8 +50,9 @@ const QueueScreen: React.FC = () => {
     try {
       setActionLoading(true);
       await nextInQueue();
-    } catch {
-      Alert.alert('Error', 'No se pudo avanzar al siguiente turno');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo avanzar al siguiente turno';
+      Alert.alert('Error', message);
     } finally {
       setActionLoading(false);
     }
@@ -69,8 +70,10 @@ const QueueScreen: React.FC = () => {
             try {
               setActionLoading(true);
               await completeItem(item.id);
-            } catch {
-              Alert.alert('Error', 'No se pudo completar el turno');
+            } catch (error) {
+              const message =
+                error instanceof Error ? error.message : 'No se pudo completar el turno';
+              Alert.alert('Error', message);
             } finally {
               setActionLoading(false);
             }
@@ -93,8 +96,9 @@ const QueueScreen: React.FC = () => {
             try {
               setActionLoading(true);
               await removeItem(item.id);
-            } catch {
-              Alert.alert('Error', 'No se pudo eliminar el turno');
+            } catch (error) {
+              const message = error instanceof Error ? error.message : 'No se pudo eliminar el turno';
+              Alert.alert('Error', message);
             } finally {
               setActionLoading(false);
             }

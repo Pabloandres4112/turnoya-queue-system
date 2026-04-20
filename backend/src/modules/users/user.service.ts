@@ -13,6 +13,40 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
+  private defaultSettings(): UserSettings {
+    return {
+      averageServiceTime: 30,
+      automationEnabled: true,
+      excludedContacts: [],
+      maxDaysAhead: 7,
+      queuePaused: false,
+    };
+  }
+
+  private normalizeSettings(settings: UserEntity['settings'] | null | undefined): UserSettings {
+    const defaults = this.defaultSettings();
+
+    return {
+      averageServiceTime:
+        typeof settings?.averageServiceTime === 'number' && settings.averageServiceTime > 0
+          ? settings.averageServiceTime
+          : defaults.averageServiceTime,
+      automationEnabled:
+        typeof settings?.automationEnabled === 'boolean'
+          ? settings.automationEnabled
+          : defaults.automationEnabled,
+      excludedContacts: Array.isArray(settings?.excludedContacts)
+        ? settings.excludedContacts.filter((value): value is string => typeof value === 'string')
+        : defaults.excludedContacts,
+      maxDaysAhead:
+        typeof settings?.maxDaysAhead === 'number' && settings.maxDaysAhead >= 0
+          ? settings.maxDaysAhead
+          : defaults.maxDaysAhead,
+      queuePaused:
+        typeof settings?.queuePaused === 'boolean' ? settings.queuePaused : defaults.queuePaused,
+    };
+  }
+
   async getAllUsers(): Promise<User[]> {
     const users = await this.userRepository.find({
       order: { createdAt: 'DESC' },
@@ -23,7 +57,7 @@ export class UserService {
       role: user.role,
       businessName: user.businessName,
       whatsappNumber: user.whatsappNumber,
-      settings: user.settings ?? null,
+      settings: this.normalizeSettings(user.settings),
     }));
   }
 
@@ -39,7 +73,7 @@ export class UserService {
       role: user.role,
       businessName: user.businessName,
       whatsappNumber: user.whatsappNumber,
-      settings: user.settings ?? null,
+      settings: this.normalizeSettings(user.settings),
     };
   }
 
@@ -49,13 +83,7 @@ export class UserService {
       businessName: createUserDto.businessName,
       whatsappNumber: createUserDto.whatsappNumber,
       email: createUserDto.email ?? null,
-      settings: {
-        averageServiceTime: 30,
-        automationEnabled: true,
-        excludedContacts: [],
-        maxDaysAhead: 7,
-        queuePaused: false,
-      },
+      settings: this.defaultSettings(),
     });
 
     const savedUser = await this.userRepository.save(user);
@@ -84,15 +112,10 @@ export class UserService {
 
     if (updateUserDto.settings !== undefined) {
       user.settings = {
-        ...(user.settings ?? {
-          averageServiceTime: 30,
-          automationEnabled: true,
-          excludedContacts: [],
-          maxDaysAhead: 7,
-          queuePaused: false,
-        }),
+        ...this.normalizeSettings(user.settings),
         ...updateUserDto.settings,
       };
+      user.settings = this.normalizeSettings(user.settings);
     }
 
     await this.userRepository.save(user);
@@ -110,13 +133,7 @@ export class UserService {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
 
-    return {
-      averageServiceTime: user.settings?.averageServiceTime ?? 30,
-      automationEnabled: user.settings?.automationEnabled ?? true,
-      excludedContacts: user.settings?.excludedContacts ?? [],
-      maxDaysAhead: user.settings?.maxDaysAhead ?? 7,
-      queuePaused: user.settings?.queuePaused ?? false,
-    };
+    return this.normalizeSettings(user.settings);
   }
 
   /**
@@ -130,7 +147,8 @@ export class UserService {
       throw new NotFoundException(`Usuario con id ${userId} no encontrado`);
     }
 
-    const currentExcluded = user.settings?.excludedContacts ?? [];
+    const normalizedSettings = this.normalizeSettings(user.settings);
+    const currentExcluded = normalizedSettings.excludedContacts;
 
     // Verificar si ya está en la lista
     if (currentExcluded.includes(phoneNumber)) {
@@ -143,13 +161,7 @@ export class UserService {
 
     // Agregar a la lista
     user.settings = {
-      ...(user.settings ?? {
-        averageServiceTime: 30,
-        automationEnabled: true,
-        excludedContacts: [],
-        maxDaysAhead: 7,
-        queuePaused: false,
-      }),
+      ...normalizedSettings,
       excludedContacts: [...currentExcluded, phoneNumber],
     };
 
@@ -172,7 +184,8 @@ export class UserService {
       throw new NotFoundException(`Usuario con id ${userId} no encontrado`);
     }
 
-    const currentExcluded = user.settings?.excludedContacts ?? [];
+    const normalizedSettings = this.normalizeSettings(user.settings);
+    const currentExcluded = normalizedSettings.excludedContacts;
 
     // Verificar si existe en la lista
     if (!currentExcluded.includes(phoneNumber)) {
@@ -185,13 +198,7 @@ export class UserService {
 
     // Remover de la lista
     user.settings = {
-      ...(user.settings ?? {
-        averageServiceTime: 30,
-        automationEnabled: true,
-        excludedContacts: [],
-        maxDaysAhead: 7,
-        queuePaused: false,
-      }),
+      ...normalizedSettings,
       excludedContacts: currentExcluded.filter((c) => c !== phoneNumber),
     };
 
@@ -216,7 +223,7 @@ export class UserService {
 
     return {
       success: true,
-      excludedContacts: user.settings?.excludedContacts ?? [],
+      excludedContacts: this.normalizeSettings(user.settings).excludedContacts,
     };
   }
 }

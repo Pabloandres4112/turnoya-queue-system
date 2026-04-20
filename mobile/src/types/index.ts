@@ -25,6 +25,13 @@ export interface QueueResponse {
   message?: string;
 }
 
+export interface QueueMutationResponse {
+  success: boolean;
+  message: string;
+  data: QueueItem | null;
+  totalInQueue?: number;
+}
+
 export interface CreateQueueDto {
   clientName: string;
   phoneNumber: string;
@@ -45,6 +52,7 @@ export interface UserSettings {
   automationEnabled: boolean;
   excludedContacts: string[];
   maxDaysAhead: number;
+  queuePaused?: boolean;
 }
 
 export interface AuthUser {

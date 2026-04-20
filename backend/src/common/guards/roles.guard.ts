@@ -4,7 +4,7 @@ import { ROLES_KEY } from '../decorators/roles.decorator';
 import { UserRole } from '../../modules/users/user-role.enum';
 
 interface RequestUser {
-  role?: UserRole;
+  role?: UserRole | string;
 }
 
 interface RequestWithUser {
@@ -26,6 +26,12 @@ export class RolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<RequestWithUser>();
-    return !!request.user?.role && requiredRoles.includes(request.user.role);
+    const userRole =
+      typeof request.user?.role === 'string' ? request.user.role.toLowerCase() : request.user?.role;
+
+    return (
+      !!userRole &&
+      requiredRoles.map((role) => role.toLowerCase()).includes(userRole.toLowerCase())
+    );
   }
 }

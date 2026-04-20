@@ -9,7 +9,7 @@ describe('UserController', () => {
   let service: UserService;
 
   const mockUser = {
-    id: 'user-1',
+    id: '11111111-1111-4111-8111-111111111111',
     role: UserRole.BUSINESS_OWNER,
     businessName: 'Mi Negocio',
     whatsappNumber: '+573001234567',
@@ -21,6 +21,7 @@ describe('UserController', () => {
     automationEnabled: true,
     excludedContacts: [],
     maxDaysAhead: 7,
+    queuePaused: false,
   };
 
   const mockService = {

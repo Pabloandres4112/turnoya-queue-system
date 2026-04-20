@@ -44,11 +44,20 @@ export class QueueService {
 
   private withDefaultSettings(settings: UserSettings | null): UserSettings {
     return {
-      averageServiceTime: settings?.averageServiceTime ?? DEFAULT_SERVICE_TIME_MINUTES,
-      automationEnabled: settings?.automationEnabled ?? false,
-      excludedContacts: settings?.excludedContacts ?? [],
-      maxDaysAhead: settings?.maxDaysAhead ?? DEFAULT_MAX_DAYS_AHEAD,
-      queuePaused: settings?.queuePaused ?? false,
+      averageServiceTime:
+        typeof settings?.averageServiceTime === 'number' && settings.averageServiceTime > 0
+          ? settings.averageServiceTime
+          : DEFAULT_SERVICE_TIME_MINUTES,
+      automationEnabled:
+        typeof settings?.automationEnabled === 'boolean' ? settings.automationEnabled : false,
+      excludedContacts: Array.isArray(settings?.excludedContacts)
+        ? settings.excludedContacts.filter((value): value is string => typeof value === 'string')
+        : [],
+      maxDaysAhead:
+        typeof settings?.maxDaysAhead === 'number' && settings.maxDaysAhead >= 0
+          ? settings.maxDaysAhead
+          : DEFAULT_MAX_DAYS_AHEAD,
+      queuePaused: typeof settings?.queuePaused === 'boolean' ? settings.queuePaused : false,
     };
   }
 

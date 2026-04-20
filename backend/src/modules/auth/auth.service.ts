@@ -8,6 +8,7 @@ import { UserEntity } from '../users/user.entity';
 import { LoginDto, RegisterDto } from './auth.dto';
 import { UserRole } from '../users/user-role.enum';
 import { LegalConsentEntity } from './legal-consent.entity';
+import { UserSettings } from '../users/user.entity';
 
 interface JwtPayload {
   sub: string;
@@ -33,6 +34,56 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
+
+  private defaultSettings(): UserSettings {
+    return {
+      averageServiceTime: 30,
+      automationEnabled: true,
+      excludedContacts: [],
+      maxDaysAhead: 7,
+      queuePaused: false,
+    };
+  }
+
+  private normalizeSettings(settings: UserEntity['settings'] | null | undefined): UserSettings {
+    const defaults = this.defaultSettings();
+
+    return {
+      averageServiceTime:
+        typeof settings?.averageServiceTime === 'number' && settings.averageServiceTime > 0
+          ? settings.averageServiceTime
+          : defaults.averageServiceTime,
+      automationEnabled:
+        typeof settings?.automationEnabled === 'boolean'
+          ? settings.automationEnabled
+          : defaults.automationEnabled,
+      excludedContacts: Array.isArray(settings?.excludedContacts)
+        ? settings.excludedContacts.filter((value): value is string => typeof value === 'string')
+        : defaults.excludedContacts,
+      maxDaysAhead:
+        typeof settings?.maxDaysAhead === 'number' && settings.maxDaysAhead >= 0
+          ? settings.maxDaysAhead
+          : defaults.maxDaysAhead,
+      queuePaused:
+        typeof settings?.queuePaused === 'boolean' ? settings.queuePaused : defaults.queuePaused,
+    };
+  }
+
+  private async ensureSinglePlatformAdmin(user: UserEntity): Promise<void> {
+    if (user.role !== UserRole.PLATFORM_ADMIN) {
+      return;
+    }
+
+    const totalAdmins = await this.usersRepository.count({
+      where: { role: UserRole.PLATFORM_ADMIN },
+    });
+
+    if (totalAdmins > 1) {
+      throw new ConflictException(
+        'Configuración inválida: solo puede existir un usuario platform_admin',
+      );
+    }
+  }
 
   async register(dto: RegisterDto, metadata?: LegalEvidenceMetadata) {
     const existing = await this.usersRepository.findOne({
@@ -115,6 +166,8 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    await this.ensureSinglePlatformAdmin(user);
+
     const accessToken = await this.signToken(user);
 
     return {
@@ -128,6 +181,9 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Usuario no válido');
     }
+
+    await this.ensureSinglePlatformAdmin(user);
+
     return this.sanitizeUser(user);
   }
 
@@ -150,7 +206,7 @@ export class AuthService {
       businessName: user.businessName,
       whatsappNumber: user.whatsappNumber,
       email: user.email ?? null,
-      settings: user.settings ?? null,
+      settings: this.normalizeSettings(user.settings),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
