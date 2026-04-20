@@ -13,7 +13,10 @@ interface NexturnaLogoProps {
    * The source image is 1536×1024, so the rendered width will be ~1.5× size.
    */
   showWordmark?: boolean;
-  /** Kept for API compatibility — has no effect when using PNG assets. */
+  /**
+   * @deprecated Has no effect when using PNG assets.
+   * Kept for API compatibility so existing callers don't need to change.
+   */
   mono?: boolean;
 }
 
