@@ -1,226 +1,42 @@
 import React from 'react';
-import { StyleSheet, Text, View, ViewStyle, TextStyle } from 'react-native';
+import { Image, ImageStyle } from 'react-native';
+
+// Real brand assets committed under mobile/assets/
+const isotypeSrc = require('../../assets/Isotipo.Nexturna.png') as number;
+const logoSrc = require('../../assets/Logo.Nexturna.png') as number;
 
 interface NexturnaLogoProps {
-  /** Size of the icon square in dp. Default 64. */
+  /** Height of the image in dp. Default 64. */
   size?: number;
-  /** When true the "Nexturna" wordmark is shown to the right of the icon. */
+  /**
+   * When true, renders the full horizontal logo (icon + "Nexturna" wordmark).
+   * The source image is 1536×1024, so the rendered width will be ~1.5× size.
+   */
   showWordmark?: boolean;
-  /** When true the icon is rendered in monochrome (dark). */
+  /** Kept for API compatibility — has no effect when using PNG assets. */
   mono?: boolean;
 }
 
 /**
  * Nexturna brand logo component.
  *
- * Renders the speech-bubble queue icon with an optional wordmark.
- * The icon is a pure-View approximation of the brand asset:
- *   - A circular speech bubble (gradient teal→blue or dark-mono)
- *   - Three queue/list rows inside
- *   - A clock badge at the top-right
- *   - An optional "Nexturna" wordmark
+ * Displays the official PNG brand assets:
+ *   - `showWordmark=false` (default) → Isotipo.Nexturna.png (isotype/icon only, 1:1)
+ *   - `showWordmark=true`            → Logo.Nexturna.png   (icon + wordmark, 3:2)
  */
 const NexturnaLogo: React.FC<NexturnaLogoProps> = ({
   size = 64,
   showWordmark = false,
-  mono = false,
+  mono: _mono = false,
 }) => {
-  const teal = mono ? '#3d4a5c' : '#00c9b4';
-  const blue = mono ? '#3d4a5c' : '#2563eb';
-  const ringColor = mono ? '#3d4a5c' : '#2563eb';
+  if (showWordmark) {
+    // Logo.Nexturna.png is 1536×1024 → aspect ratio 3:2
+    const logoStyle: ImageStyle = { width: Math.round(size * 1.5), height: size };
+    return <Image source={logoSrc} style={logoStyle} resizeMode="contain" />;
+  }
 
-  const stroke = Math.round(size * 0.09);
-  const outerR = size / 2;
-
-  // Clock badge
-  const clockR = Math.round(size * 0.22);
-  const clockStroke = Math.max(1, Math.round(clockR * 0.28));
-  const clockCx = Math.round(size * 0.72);
-  const clockCy = Math.round(size * 0.17);
-
-  // Row items inside bubble
-  const rowCount = 3;
-  const bulletSize = Math.round(size * 0.09);
-  const rowGap = Math.round(size * 0.05);
-  const listLeft = Math.round(size * 0.22);
-  const listRight = Math.round(size * 0.74);
-  const listTop = Math.round(size * 0.30);
-  const listBottom = Math.round(size * 0.64);
-  const rowH = (listBottom - listTop) / rowCount;
-
-  // Pre-computed dynamic styles (avoids react-native/no-inline-styles)
-  const iconContainerStyle: ViewStyle = { width: size, height: size };
-
-  const ringStyle: ViewStyle = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: size,
-    height: size,
-    borderRadius: outerR,
-    borderWidth: stroke,
-    borderColor: ringColor,
-    backgroundColor: 'transparent',
-  };
-
-  const tailStyle: ViewStyle = {
-    position: 'absolute',
-    bottom: 0,
-    left: Math.round(size * 0.08),
-    width: 0,
-    height: 0,
-    borderRightWidth: Math.round(size * 0.18),
-    borderTopWidth: Math.round(size * 0.2),
-    borderRightColor: 'transparent',
-    borderTopColor: ringColor,
-  };
-
-  const tailCutoutStyle: ViewStyle = {
-    position: 'absolute',
-    bottom: Math.round(size * 0.03),
-    left: Math.round(size * 0.11),
-    width: 0,
-    height: 0,
-    borderRightWidth: Math.round(size * 0.10),
-    borderTopWidth: Math.round(size * 0.12),
-    borderRightColor: 'transparent',
-    borderTopColor: '#ffffff',
-  };
-
-  const rowColors = [
-    mono ? '#3d4a5c' : teal,
-    mono ? '#3d4a5c' : '#13a8d4',
-    mono ? '#3d4a5c' : blue,
-  ];
-
-  const rowStyles = Array.from({ length: rowCount }).map((_, i) => {
-    const rowY = listTop + i * rowH + (rowH - bulletSize) / 2;
-    const barColor = rowColors[i];
-    const barWidth =
-      i === 0
-        ? Math.round((listRight - listLeft - bulletSize - rowGap) * 0.65)
-        : listRight - listLeft - bulletSize - rowGap;
-    const bulletStyle: ViewStyle = {
-      position: 'absolute',
-      top: Math.round(rowY),
-      left: listLeft,
-      width: bulletSize,
-      height: bulletSize,
-      borderRadius: 1,
-      backgroundColor: barColor,
-    };
-    const barStyle: ViewStyle = {
-      position: 'absolute',
-      top: Math.round(rowY),
-      left: listLeft + bulletSize + rowGap,
-      width: barWidth,
-      height: bulletSize,
-      borderRadius: 1,
-      backgroundColor: barColor,
-    };
-    return { bulletStyle, barStyle };
-  });
-
-  const clockOuterStyle: ViewStyle = {
-    position: 'absolute',
-    top: clockCy - clockR,
-    left: clockCx - clockR,
-    width: clockR * 2,
-    height: clockR * 2,
-    borderRadius: clockR,
-    backgroundColor: teal,
-  };
-
-  const clockFaceStyle: ViewStyle = {
-    position: 'absolute',
-    top: clockCy - clockR + clockStroke,
-    left: clockCx - clockR + clockStroke,
-    width: (clockR - clockStroke) * 2,
-    height: (clockR - clockStroke) * 2,
-    borderRadius: clockR - clockStroke,
-    backgroundColor: '#ffffff',
-  };
-
-  const clockHourStyle: ViewStyle = {
-    position: 'absolute',
-    top: clockCy - Math.round((clockR - clockStroke) * 0.6),
-    left: clockCx - 1,
-    width: 2,
-    height: Math.round((clockR - clockStroke) * 0.6),
-    backgroundColor: teal,
-  };
-
-  const clockMinuteStyle: ViewStyle = {
-    position: 'absolute',
-    top: clockCy - 1,
-    left: clockCx,
-    width: Math.round((clockR - clockStroke) * 0.6),
-    height: 2,
-    backgroundColor: teal,
-  };
-
-  const wordmarkDynamicStyle: TextStyle = {
-    fontSize: Math.round(size * 0.45),
-    color: mono ? '#1e293b' : '#1e3a8a',
-    marginLeft: Math.round(size * 0.18),
-  };
-
-  return (
-    <View style={[styles.root, showWordmark && styles.rootRow]}>
-      {/* Icon container */}
-      <View style={iconContainerStyle}>
-        {/* Outer ring (speech bubble body) */}
-        <View style={ringStyle} />
-
-        {/* Speech bubble tail (triangle bottom-left) */}
-        <View style={tailStyle} />
-        {/* Tail inner cutout to maintain ring look */}
-        <View style={tailCutoutStyle} />
-
-        {/* List rows */}
-        {rowStyles.map(({ bulletStyle, barStyle }, i) => (
-          <React.Fragment key={i}>
-            {/* Bullet square */}
-            <View style={bulletStyle} />
-            {/* Text bar */}
-            <View style={barStyle} />
-          </React.Fragment>
-        ))}
-
-        {/* Clock badge */}
-        {/* Outer circle */}
-        <View style={clockOuterStyle} />
-        {/* Clock face */}
-        <View style={clockFaceStyle} />
-        {/* Clock hour hand (up) */}
-        <View style={clockHourStyle} />
-        {/* Clock minute hand (right) */}
-        <View style={clockMinuteStyle} />
-      </View>
-
-      {/* Wordmark */}
-      {showWordmark && (
-        <Text style={[styles.wordmark, wordmarkDynamicStyle]}>
-          Nexturna
-        </Text>
-      )}
-    </View>
-  );
+  const isotypStyle: ImageStyle = { width: size, height: size };
+  return <Image source={isotypeSrc} style={isotypStyle} resizeMode="contain" />;
 };
-
-const styles = StyleSheet.create({
-  root: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rootRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  wordmark: {
-    fontWeight: '700',
-    letterSpacing: -0.5,
-  },
-});
 
 export default NexturnaLogo;
