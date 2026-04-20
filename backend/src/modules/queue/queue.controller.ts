@@ -5,10 +5,12 @@ import {
   Put,
   Delete,
   Body,
+  ParseUUIDPipe,
   Param,
   UseGuards,
   Req,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { QueueService } from './queue.service';
@@ -40,6 +42,9 @@ export class QueueController {
 
   @Get(':date')
   async getQueueByDate(@Req() req: AuthRequest, @Param('date') date: string): Promise<any> {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      throw new BadRequestException('Fecha inválida. Usa formato YYYY-MM-DD');
+    }
     return this.queueService.getQueueByDate(this.getBusinessId(req), date);
   }
 
@@ -51,14 +56,17 @@ export class QueueController {
   @Put(':id')
   async updateQueueItem(
     @Req() req: AuthRequest,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateQueueDto: UpdateQueueDto,
   ) {
     return this.queueService.updateQueueItem(this.getBusinessId(req), id, updateQueueDto);
   }
 
   @Delete(':id')
-  async removeFromQueue(@Req() req: AuthRequest, @Param('id') id: string) {
+  async removeFromQueue(
+    @Req() req: AuthRequest,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
     return this.queueService.removeFromQueue(this.getBusinessId(req), id);
   }
 
@@ -68,12 +76,18 @@ export class QueueController {
   }
 
   @Post('complete/:id')
-  async completeQueueItem(@Req() req: AuthRequest, @Param('id') id: string) {
+  async completeQueueItem(
+    @Req() req: AuthRequest,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
     return this.queueService.completeQueueItem(this.getBusinessId(req), id);
   }
 
   @Post('skip/:id')
-  async skipQueueItem(@Req() req: AuthRequest, @Param('id') id: string) {
+  async skipQueueItem(
+    @Req() req: AuthRequest,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
     return this.queueService.skipQueueItem(this.getBusinessId(req), id);
   }
 

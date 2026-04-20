@@ -1,39 +1,57 @@
-import { IsString, IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  IsUUID,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { MessageDirection, MessageType, MessageStatus } from './message-log.entity';
 
 export class CreateMessageLogDto {
-  @IsString()
+  @IsPhoneNumber(undefined, {
+    message: 'El teléfono debe estar en formato internacional válido',
+  })
   phoneNumber!: string;
 
-  @IsString()
+  @IsString({ message: 'El mensaje debe ser texto' })
+  @IsNotEmpty({ message: 'El mensaje no puede estar vacío' })
+  @MaxLength(1000, { message: 'El mensaje no puede superar 1000 caracteres' })
   messageText!: string;
 
-  @IsEnum(MessageDirection)
+  @IsEnum(MessageDirection, { message: 'La dirección del mensaje no es válida' })
   direction!: MessageDirection;
 
-  @IsEnum(MessageType)
+  @IsEnum(MessageType, { message: 'El tipo de mensaje no es válido' })
   messageType!: MessageType;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'whatsappMessageId debe ser texto' })
+  @MaxLength(120, { message: 'whatsappMessageId no puede superar 120 caracteres' })
   whatsappMessageId?: string;
 
   @IsOptional()
-  @IsEnum(MessageStatus)
+  @IsEnum(MessageStatus, { message: 'El estado del mensaje no es válido' })
   status?: MessageStatus;
 
   @IsOptional()
-  @IsUUID()
+  @IsUUID('4', { message: 'queueId debe ser un UUID válido' })
   queueId?: string;
 }
 
 export class UpdateMessageLogDto {
   @IsOptional()
-  @IsEnum(MessageStatus)
+  @IsEnum(MessageStatus, { message: 'El estado del mensaje no es válido' })
   status?: MessageStatus;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'whatsappMessageId debe ser texto' })
+  @MaxLength(120, { message: 'whatsappMessageId no puede superar 120 caracteres' })
   whatsappMessageId?: string;
 }
 
@@ -54,20 +72,29 @@ export class MessageLogResponseDto {
 
 export class GetMessageLogsQueryDto {
   @IsOptional()
-  @IsString()
+  @IsPhoneNumber(undefined, {
+    message: 'El teléfono debe estar en formato internacional válido',
+  })
   phoneNumber?: string;
 
   @IsOptional()
-  @IsEnum(MessageDirection)
+  @IsEnum(MessageDirection, { message: 'La dirección del mensaje no es válida' })
   direction?: MessageDirection;
 
   @IsOptional()
-  @IsEnum(MessageStatus)
+  @IsEnum(MessageStatus, { message: 'El estado del mensaje no es válido' })
   status?: MessageStatus;
 
   @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'limit debe ser un número entero' })
+  @Min(1, { message: 'limit debe ser mayor o igual a 1' })
+  @Max(200, { message: 'limit no puede superar 200' })
   limit?: number;
 
   @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'offset debe ser un número entero' })
+  @Min(0, { message: 'offset no puede ser negativo' })
   offset?: number;
 }

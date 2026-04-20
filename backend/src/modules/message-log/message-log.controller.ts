@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  Body,
+  Query,
+  UnauthorizedException,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { MessageLogService } from './message-log.service';
 import {
   CreateMessageLogDto,
@@ -16,10 +28,11 @@ export class MessageLogController {
   constructor(private readonly messageLogService: MessageLogService) {}
 
   private getBusinessId(req: any): string {
-    if (!req.user?.businessId) {
-      throw new Error('businessId not found in token');
+    const businessId = req.user?.businessId ?? req.user?.id;
+    if (!businessId) {
+      throw new UnauthorizedException('No se pudo identificar el negocio en el token');
     }
-    return req.user.businessId;
+    return businessId;
   }
 
   /**
@@ -41,17 +54,6 @@ export class MessageLogController {
    * GET /message-logs/:id
    * Obtiene un mensaje log específico.
    */
-  @Get(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF, UserRole.PLATFORM_ADMIN)
-  async getLogById(@Param('id') id: string): Promise<MessageLogResponseDto> {
-    return this.messageLogService.getLogById(id);
-  }
-
-  /**
-   * GET /message-logs/phone/:phoneNumber
-   * Obtiene todo el historial de comunicación con un número específico.
-   */
   @Get('phone/:phoneNumber')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF)
@@ -70,8 +72,23 @@ export class MessageLogController {
   @Get('queue/:queueId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF, UserRole.PLATFORM_ADMIN)
-  async getLogsForQueue(@Param('queueId') queueId: string): Promise<MessageLogResponseDto[]> {
+  async getLogsForQueue(
+    @Param('queueId', new ParseUUIDPipe({ version: '4' })) queueId: string,
+  ): Promise<MessageLogResponseDto[]> {
     return this.messageLogService.getLogsForQueueItem(queueId);
+  }
+
+  /**
+   * GET /message-logs/:id
+   * Obtiene un mensaje log específico.
+   */
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF, UserRole.PLATFORM_ADMIN)
+  async getLogById(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): Promise<MessageLogResponseDto> {
+    return this.messageLogService.getLogById(id);
   }
 
   /**
@@ -89,7 +106,7 @@ export class MessageLogController {
     const userId = req.user?.id;
 
     if (!userId) {
-      throw new Error('userId not found in token');
+      throw new UnauthorizedException('No se pudo identificar el usuario en el token');
     }
 
     return this.messageLogService.createLog(businessId, userId, dto);
@@ -103,7 +120,7 @@ export class MessageLogController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUSINESS_OWNER, UserRole.BUSINESS_STAFF, UserRole.PLATFORM_ADMIN)
   async updateLog(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: UpdateMessageLogDto,
   ): Promise<MessageLogResponseDto> {
     return this.messageLogService.updateLog(id, dto);

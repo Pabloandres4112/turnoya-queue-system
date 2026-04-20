@@ -1,8 +1,34 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationError, ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+
+type ValidationDetail = {
+  field: string;
+  errors: string[];
+};
+
+function flattenValidationErrors(errors: ValidationError[], parentPath = ''): ValidationDetail[] {
+  const details: ValidationDetail[] = [];
+
+  for (const error of errors) {
+    const fieldPath = parentPath ? `${parentPath}.${error.property}` : error.property;
+
+    if (error.constraints) {
+      details.push({
+        field: fieldPath,
+        errors: Object.values(error.constraints),
+      });
+    }
+
+    if (error.children && error.children.length > 0) {
+      details.push(...flattenValidationErrors(error.children, fieldPath));
+    }
+  }
+
+  return details;
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,6 +46,18 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
+      forbidNonWhitelisted: true,
+      forbidUnknownValues: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+      exceptionFactory: (errors: ValidationError[]) => {
+        const details = flattenValidationErrors(errors);
+        return new BadRequestException({
+          message: 'Error de validación en la solicitud',
+          errors: details,
+        });
+      },
     }),
   );
 

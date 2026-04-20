@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { NotificationService } from './notif.service';
-import { SendNotificationDto } from './notif.dto';
+import { QueueUpdateNotificationDto, SendNotificationDto } from './notif.dto';
 
 @Controller('notifications')
 export class NotificationController {
@@ -12,7 +12,7 @@ export class NotificationController {
   }
 
   @Post('queue-update')
-  async notifyQueueUpdate(@Body() data: any) {
+  async notifyQueueUpdate(@Body() data: QueueUpdateNotificationDto) {
     return this.notificationService.notifyQueueUpdate(data);
   }
 }

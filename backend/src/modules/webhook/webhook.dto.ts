@@ -1,9 +1,48 @@
-import { IsString, IsArray, IsOptional, ValidateNested } from 'class-validator';
+import { IsArray, IsIn, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
  * DTO para el valor de un campo en el webhook
  */
+class WebhookText {
+  @IsString()
+  @MaxLength(4096)
+  body!: string;
+}
+
+class WebhookMessage {
+  @IsString()
+  from!: string;
+
+  @IsString()
+  id!: string;
+
+  @IsString()
+  timestamp!: string;
+
+  @IsString()
+  type!: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => WebhookText)
+  text?: WebhookText;
+}
+
+class WebhookStatus {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  status!: string;
+
+  @IsString()
+  timestamp!: string;
+
+  @IsString()
+  recipient_id!: string;
+}
+
 class WebhookValue {
   @IsString()
   @IsOptional()
@@ -11,22 +50,15 @@ class WebhookValue {
 
   @IsArray()
   @IsOptional()
-  messages?: Array<{
-    from: string;
-    id: string;
-    timestamp: string;
-    type: string;
-    text?: { body: string };
-  }>;
+  @ValidateNested({ each: true })
+  @Type(() => WebhookMessage)
+  messages?: WebhookMessage[];
 
   @IsArray()
   @IsOptional()
-  statuses?: Array<{
-    id: string;
-    status: string;
-    timestamp: string;
-    recipient_id: string;
-  }>;
+  @ValidateNested({ each: true })
+  @Type(() => WebhookStatus)
+  statuses?: WebhookStatus[];
 
   @IsString()
   @IsOptional()
@@ -45,15 +77,18 @@ class WebhookValue {
   type?: string;
 
   @IsOptional()
-  text?: { body: string };
+  @ValidateNested()
+  @Type(() => WebhookText)
+  text?: WebhookText;
 }
 
 /**
  * DTO para un cambio en el webhook
  */
 class WebhookChange {
-  @IsString()
-  value!: string | WebhookValue;
+  @ValidateNested()
+  @Type(() => WebhookValue)
+  value!: WebhookValue;
 
   @IsString()
   field!: string;
@@ -67,7 +102,7 @@ class WebhookEntry {
   id!: string;
 
   @IsArray()
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @Type(() => WebhookChange)
   changes!: WebhookChange[];
 }
@@ -81,7 +116,7 @@ export class WhatsAppWebhookDto {
   object!: string;
 
   @IsArray()
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @Type(() => WebhookEntry)
   entry!: WebhookEntry[];
 }
@@ -90,7 +125,7 @@ export class WhatsAppWebhookDto {
  * DTO para la verificación GET del webhook
  */
 export class WebhookVerificationDto {
-  @IsString()
+  @IsIn(['subscribe'], { message: 'hub.mode debe ser subscribe' })
   'hub.mode': string;
 
   @IsString()
