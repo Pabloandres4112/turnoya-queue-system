@@ -58,7 +58,7 @@ const AddClientScreen: React.FC = () => {
       await addToQueue({
         clientName: clientName.trim(),
         phoneNumber: phoneNumber.trim(),
-        estimatedTime: settings.averageServiceTime,
+        estimatedTimeMinutes: settings.averageServiceTime,
         priority,
       });
 

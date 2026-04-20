@@ -107,7 +107,7 @@ const ClientDetailScreen: React.FC = () => {
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailKey}>Tiempo estimado</Text>
-            <Text style={styles.detailValue}>{formatTime(item.estimatedTime)}</Text>
+            <Text style={styles.detailValue}>{formatTime(item.estimatedTimeMinutes)}</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailKey}>Ingreso</Text>

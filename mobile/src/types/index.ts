@@ -12,7 +12,7 @@ export interface QueueItem {
   phoneNumber: string;
   position: number;
   status: QueueStatus;
-  estimatedTime: number;
+  estimatedTimeMinutes: number;
   priority: boolean;
   createdAt: string;
   queueDate: string;
@@ -28,13 +28,13 @@ export interface QueueResponse {
 export interface CreateQueueDto {
   clientName: string;
   phoneNumber: string;
-  estimatedTime?: number;
+  estimatedTimeMinutes?: number;
   priority?: boolean;
 }
 
 export interface UpdateQueueDto {
   status?: QueueStatus;
-  estimatedTime?: number;
+  estimatedTimeMinutes?: number;
   position?: number;
 }
 

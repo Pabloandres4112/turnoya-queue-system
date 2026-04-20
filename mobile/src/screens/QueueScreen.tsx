@@ -140,7 +140,7 @@ const QueueScreen: React.FC = () => {
 
         <Text style={styles.clientName}>{item.clientName}</Text>
         <Text style={styles.phone}>{item.phoneNumber}</Text>
-        <Text style={styles.time}>Tiempo est.: {item.estimatedTime} min</Text>
+        <Text style={styles.time}>Tiempo est.: {item.estimatedTimeMinutes} min</Text>
 
         <View style={styles.cardActions}>
           {item.status !== 'completed' && item.status !== 'noShow' && (

@@ -25,7 +25,7 @@ const mockQueue = [
     phoneNumber: '+573001234567',
     position: 1,
     status: 'in-progress' as const,
-    estimatedTime: 15,
+    estimatedTimeMinutes: 15,
     priority: false,
     createdAt: '2024-01-01T00:00:00.000Z',
     queueDate: '2024-01-01T00:00:00.000Z',
