@@ -41,11 +41,15 @@ export const validatePhoneNumber = (value: string): string | null => {
   if (!value.trim()) {
     return 'El número de teléfono es requerido';
   }
-  // Accept digits and leading +, between 7-15 digits
-  const phoneRegex = /^\+?[0-9]{7,15}$/;
-  if (!phoneRegex.test(value.replace(/[\s\-()]/g, ''))) {
-    return 'Ingresa un número de teléfono válido (7-15 dígitos)';
+
+  // Backend expects a valid international E.164 number.
+  const normalized = value.replace(/[\s\-()]/g, '');
+  const phoneRegex = /^\+[1-9]\d{10,14}$/;
+
+  if (!phoneRegex.test(normalized)) {
+    return 'Ingresa un número en formato internacional válido (ej: +51987654321)';
   }
+
   return null;
 };
 

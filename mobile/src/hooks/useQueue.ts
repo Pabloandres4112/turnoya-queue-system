@@ -22,8 +22,8 @@ export const useQueue = () => {
       const response: QueueResponse = await queueApi.getQueue();
       setQueue(response.queue ?? []);
       setTotal(response.total ?? 0);
-    } catch (error) {
-      setError(parseApiError(error, 'Error al cargar la cola'));
+    } catch (caughtError) {
+      setError(parseApiError(caughtError, 'Error al cargar la cola'));
     } finally {
       setLoading(false);
     }
@@ -35,8 +35,8 @@ export const useQueue = () => {
         const response = await queueApi.addToQueue(data);
         await loadQueue();
         return response;
-      } catch (error) {
-        throw new Error(parseApiError(error, 'No se pudo agregar el cliente'));
+      } catch (caughtError) {
+        throw new Error(parseApiError(caughtError, 'No se pudo agregar el cliente'));
       }
     },
     [loadQueue],
@@ -46,8 +46,8 @@ export const useQueue = () => {
     try {
       await queueApi.nextInQueue();
       await loadQueue();
-    } catch (error) {
-      throw new Error(parseApiError(error, 'No se pudo avanzar al siguiente turno'));
+    } catch (caughtError) {
+      throw new Error(parseApiError(caughtError, 'No se pudo avanzar al siguiente turno'));
     }
   }, [loadQueue]);
 
@@ -56,8 +56,8 @@ export const useQueue = () => {
       try {
         await queueApi.completeQueueItem(id);
         await loadQueue();
-      } catch (error) {
-        throw new Error(parseApiError(error, 'No se pudo completar el turno'));
+      } catch (caughtError) {
+        throw new Error(parseApiError(caughtError, 'No se pudo completar el turno'));
       }
     },
     [loadQueue],
@@ -68,8 +68,8 @@ export const useQueue = () => {
       try {
         await queueApi.removeFromQueue(id);
         await loadQueue();
-      } catch (error) {
-        throw new Error(parseApiError(error, 'No se pudo eliminar el turno'));
+      } catch (caughtError) {
+        throw new Error(parseApiError(caughtError, 'No se pudo eliminar el turno'));
       }
     },
     [loadQueue],

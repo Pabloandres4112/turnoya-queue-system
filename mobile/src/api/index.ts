@@ -6,7 +6,6 @@ import {
   LoginDto,
   RegisterDto,
   QueueResponse,
-  QueueItem,
   CreateQueueDto,
   QueueMutationResponse,
   UpdateQueueDto,
@@ -18,7 +17,7 @@ import {
 interface ApiErrorPayload {
   message?: string | string[];
   error?: string;
-  details?: Array<{ message?: string }>;
+  details?: Array<{ field?: string; message?: string; errors?: string[] }>;
 }
 
 export const getApiErrorMessage = (
@@ -31,19 +30,24 @@ export const getApiErrorMessage = (
 
   const payload = error.response?.data as ApiErrorPayload | undefined;
 
+  if (Array.isArray(payload?.details) && payload.details.length > 0) {
+    const firstDetail = payload.details[0];
+
+    if (Array.isArray(firstDetail?.errors) && firstDetail.errors.length > 0) {
+      return firstDetail.errors[0];
+    }
+
+    if (typeof firstDetail?.message === 'string' && firstDetail.message.trim().length > 0) {
+      return firstDetail.message;
+    }
+  }
+
   if (Array.isArray(payload?.message) && payload.message.length > 0) {
     return payload.message[0];
   }
 
   if (typeof payload?.message === 'string' && payload.message.trim().length > 0) {
     return payload.message;
-  }
-
-  if (Array.isArray(payload?.details) && payload.details.length > 0) {
-    const firstDetail = payload.details[0]?.message;
-    if (typeof firstDetail === 'string' && firstDetail.trim().length > 0) {
-      return firstDetail;
-    }
   }
 
   if (typeof payload?.error === 'string' && payload.error.trim().length > 0) {
