@@ -42,6 +42,9 @@ import { RolesGuard } from './common/guards/roles.guard';
           configService.get<string>('DB_SYNC') === 'true' ||
           configService.get<string>('NODE_ENV') === 'development',
         logging: configService.get<string>('NODE_ENV') === 'development',
+        retryAttempts: 20,
+        retryDelay: 5000,
+        connectTimeoutMS: 10000,
       }),
     }),
     TypeOrmModule.forFeature([UserEntity, QueueEntity, MessageLogEntity]),

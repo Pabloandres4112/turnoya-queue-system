@@ -15,9 +15,10 @@ services:
       - turnoya-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U turnoya -d turnoya_db"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
 
   # pgAdmin para administrar la base de datos
   pgadmin:
@@ -39,6 +40,7 @@ services:
 networks:
   turnoya-network:
     driver: bridge
+    name: turnoya-network
 
 volumes:
   postgres-dev-data:

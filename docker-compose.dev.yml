@@ -18,12 +18,14 @@ services:
       - DB_PASSWORD=turnoya_password
       - DB_NAME=turnoya_db
     env_file:
-      - ./backend/.env
+      - path: ./backend/.env
+        required: false
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - turnoya-network
+    restart: on-failure
     volumes:
       - ./backend/src:/app/src
       - ./backend/package.json:/app/package.json
@@ -45,9 +47,10 @@ services:
       - turnoya-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U turnoya -d turnoya_db"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
 
   # pgAdmin
   pgadmin:
@@ -68,6 +71,7 @@ services:
 networks:
   turnoya-network:
     driver: bridge
+    name: turnoya-network
 
 volumes:
   postgres-dev-data:

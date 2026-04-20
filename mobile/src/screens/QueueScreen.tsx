@@ -1,140 +1,198 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
+  Alert,
   FlatList,
-  TouchableOpacity,
-  SafeAreaView,
-  ActivityIndicator,
   RefreshControl,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {QueueItem, QueueResponse} from '../types';
-import api from '../api';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AppStackParamList, QueueItem } from '../types';
+import { useQueue } from '../hooks/useQueue';
+import Badge from '../components/Badge';
+import Button from '../components/Button';
+import EmptyState from '../components/EmptyState';
+import ErrorMessage from '../components/ErrorMessage';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { COLORS, RADIUS, SHADOW, SPACING, TYPOGRAPHY } from '../constants';
+
+type QueueNavProp = NativeStackNavigationProp<AppStackParamList, 'Queue'>;
+
+const STATUS_LABELS: Record<string, string> = {
+  waiting: 'En espera',
+  'in-progress': 'En atencion',
+  completed: 'Completado',
+  noShow: 'No asistio',
+};
 
 const QueueScreen: React.FC = () => {
-  const [queue, setQueue] = useState<QueueItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const navigation = useNavigation<QueueNavProp>();
+  const {
+    queue,
+    loading,
+    error,
+    refresh,
+    nextInQueue,
+    completeItem,
+    removeItem,
+  } = useQueue();
+  const [actionLoading, setActionLoading] = useState(false);
 
-  const loadQueue = async () => {
-    try {
-      const response: QueueResponse = await api.queue.getAll();
-      setQueue(response.queue);
-    } catch (error) {
-      console.error('Error cargando cola:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadQueue();
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadQueue();
-  };
+  const activeQueue = queue.filter(
+    (i) => i.status === 'waiting' || i.status === 'in-progress',
+  );
 
   const handleNext = async () => {
     try {
-      await api.queue.next();
-      loadQueue();
-    } catch (error) {
-      console.error('Error avanzando turno:', error);
+      setActionLoading(true);
+      await nextInQueue();
+    } catch {
+      Alert.alert('Error', 'No se pudo avanzar al siguiente turno');
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'in-progress':
-        return '#10b981';
-      case 'waiting':
-        return '#f59e0b';
-      case 'completed':
-        return '#6b7280';
-      default:
-        return '#ef4444';
-    }
+  const handleComplete = (item: QueueItem) => {
+    Alert.alert(
+      'Completar turno',
+      `Marcar el turno de ${item.clientName} como completado?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Completar',
+          onPress: async () => {
+            try {
+              setActionLoading(true);
+              await completeItem(item.id);
+            } catch {
+              Alert.alert('Error', 'No se pudo completar el turno');
+            } finally {
+              setActionLoading(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'in-progress':
-        return 'En atención';
-      case 'waiting':
-        return 'Esperando';
-      case 'completed':
-        return 'Completado';
-      default:
-        return 'No asistió';
-    }
+  const handleRemove = (item: QueueItem) => {
+    Alert.alert(
+      'Eliminar turno',
+      `Eliminar a ${item.clientName} de la cola?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setActionLoading(true);
+              await removeItem(item.id);
+            } catch {
+              Alert.alert('Error', 'No se pudo eliminar el turno');
+            } finally {
+              setActionLoading(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
-        <Text style={styles.loadingText}>Cargando cola...</Text>
-      </View>
-    );
+    return <LoadingSpinner fullscreen message="Cargando cola..." />;
   }
+
+  if (error) {
+    return <ErrorMessage message={error} onRetry={refresh} />;
+  }
+
+  const renderItem = ({ item }: { item: QueueItem }) => {
+    const isCurrent = item.status === 'in-progress';
+
+    return (
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => navigation.navigate('ClientDetail', { item })}
+        style={[styles.card, isCurrent && styles.cardActive]}>
+        {isCurrent && (
+          <View style={styles.activeBar} />
+        )}
+        <View style={styles.cardHeader}>
+          <View style={styles.positionBadge}>
+            <Text style={styles.positionText}>#{item.position}</Text>
+          </View>
+          <View style={styles.badgesRow}>
+            {item.priority && (
+              <Badge label="Prioritario" variant="priority" style={styles.badgeGap} />
+            )}
+            <Badge
+              label={STATUS_LABELS[item.status] ?? item.status}
+              variant={item.status}
+            />
+          </View>
+        </View>
+
+        <Text style={styles.clientName}>{item.clientName}</Text>
+        <Text style={styles.phone}>{item.phoneNumber}</Text>
+        <Text style={styles.time}>Tiempo est.: {item.estimatedTimeMinutes} min</Text>
+
+        <View style={styles.cardActions}>
+          {item.status !== 'completed' && item.status !== 'noShow' && (
+            <>
+              <TouchableOpacity
+                style={styles.actionBtnComplete}
+                onPress={() => handleComplete(item)}>
+                <Text style={styles.actionBtnText}>Completar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.actionBtnRemove}
+                onPress={() => handleRemove(item)}>
+                <Text style={styles.actionBtnText}>Eliminar</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Cola de Turnos</Text>
-        <Text style={styles.total}>Total: {queue.length}</Text>
+        <Text style={styles.subtitle}>{activeQueue.length} en espera</Text>
       </View>
 
       <FlatList
         data={queue}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={loading} onRefresh={refresh} />
         }
-        renderItem={({item}) => (
-          <View style={styles.queueItem}>
-            <View style={styles.itemHeader}>
-              <View style={styles.positionBadge}>
-                <Text style={styles.positionText}>#{item.position}</Text>
-              </View>
-              <View
-                style={[
-                  styles.statusBadge,
-                  {backgroundColor: getStatusColor(item.status)},
-                ]}>
-                <Text style={styles.statusText}>
-                  {getStatusText(item.status)}
-                </Text>
-              </View>
-            </View>
-
-            <Text style={styles.clientName}>{item.clientName}</Text>
-            <Text style={styles.phoneNumber}>{item.phoneNumber}</Text>
-            <Text style={styles.estimatedTime}>
-              Tiempo estimado: {item.estimatedTime} min
-            </Text>
-
-            {item.priority && (
-              <View style={styles.priorityBadge}>
-                <Text style={styles.priorityText}>⚡ Prioritario</Text>
-              </View>
-            )}
-          </View>
-        )}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No hay turnos en la cola</Text>
-          </View>
+          <EmptyState
+            title="Cola vacia"
+            subtitle="No hay clientes en la cola. Agrega uno para comenzar."
+          />
         }
       />
 
-      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextButtonText}>Siguiente Turno</Text>
-      </TouchableOpacity>
+      <View style={styles.footer}>
+        <Button
+          title={actionLoading ? 'Procesando...' : 'Siguiente turno'}
+          onPress={handleNext}
+          loading={actionLoading}
+          variant="secondary"
+        />
+      </View>
     </SafeAreaView>
   );
 };
@@ -142,118 +200,121 @@ const QueueScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#64748b',
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: '#ffffff',
-    padding: 20,
+    backgroundColor: COLORS.white,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: COLORS.border,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1e293b',
+    ...TYPOGRAPHY.h3,
+    color: COLORS.textPrimary,
   },
-  total: {
-    fontSize: 14,
-    color: '#64748b',
-    marginTop: 5,
+  subtitle: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textMuted,
+    marginTop: 2,
   },
-  queueItem: {
-    backgroundColor: '#ffffff',
-    margin: 10,
-    padding: 15,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  list: {
+    padding: SPACING.md,
+    paddingBottom: SPACING.xxl,
   },
-  itemHeader: {
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    ...SHADOW.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    overflow: 'hidden',
+  },
+  cardActive: {
+    borderColor: COLORS.secondary,
+    ...SHADOW.md,
+  },
+  activeBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: 4,
+    backgroundColor: COLORS.secondary,
+    borderTopLeftRadius: RADIUS.lg,
+    borderBottomLeftRadius: RADIUS.lg,
+  },
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+    paddingLeft: 8,
   },
   positionBadge: {
-    backgroundColor: '#2563eb',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
+    backgroundColor: COLORS.primaryLight,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
   },
   positionText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 14,
+    ...TYPOGRAPHY.label,
+    color: COLORS.primary,
   },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
+  badgesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  statusText: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '600',
+  badgeGap: {
+    marginRight: SPACING.xs,
   },
   clientName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    marginBottom: 5,
+    ...TYPOGRAPHY.h4,
+    color: COLORS.textPrimary,
+    paddingLeft: 8,
+    marginBottom: 2,
   },
-  phoneNumber: {
-    fontSize: 14,
-    color: '#64748b',
-    marginBottom: 5,
+  phone: {
+    ...TYPOGRAPHY.body2,
+    color: COLORS.textMuted,
+    paddingLeft: 8,
+    marginBottom: 2,
   },
-  estimatedTime: {
-    fontSize: 14,
-    color: '#64748b',
+  time: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textMuted,
+    paddingLeft: 8,
+    marginBottom: SPACING.sm,
   },
-  priorityBadge: {
-    marginTop: 10,
-    backgroundColor: '#fef3c7',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-    alignSelf: 'flex-start',
+  cardActions: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    paddingLeft: 8,
   },
-  priorityText: {
-    color: '#f59e0b',
-    fontSize: 12,
-    fontWeight: 'bold',
+  actionBtnComplete: {
+    backgroundColor: COLORS.secondaryLight,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs + 2,
+    borderRadius: RADIUS.md,
   },
-  emptyContainer: {
-    padding: 40,
-    alignItems: 'center',
+  actionBtnRemove: {
+    backgroundColor: COLORS.dangerLight,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs + 2,
+    borderRadius: RADIUS.md,
   },
-  emptyText: {
-    fontSize: 16,
-    color: '#94a3b8',
+  actionBtnText: {
+    ...TYPOGRAPHY.caption,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
   },
-  nextButton: {
-    backgroundColor: '#10b981',
-    margin: 20,
-    padding: 18,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  nextButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
+  footer: {
+    padding: SPACING.lg,
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
   },
 });
 
